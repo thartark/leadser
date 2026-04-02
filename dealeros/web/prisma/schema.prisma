@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  role          String    @default("SALESPERSON")
+  avatar        String?
+  createdAt     DateTime  @default(now())
+  
+  leads         Lead[]    @relation("AssignedLeads")
+  interactions  Interaction[]
+  tasks         Task[]
+}
+
+model Lead {
+  id                String        @id @default(cuid())
+  firstName         String
+  lastName          String
+  email             String?
+  phone             String?
+  vehicleInterest   String?
+  source            String        @default("WEBSITE")
+  status            String        @default("NEW")
+  aiScore           Int           @default(0)
+  scoreExplanation  String?       @db.Text
+  timeInStage       DateTime      @default(now())
+  lastContactAt     DateTime?
+  assignedToId      String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  
+  assignedTo        User?         @relation("AssignedLeads", fields: [assignedToId], references: [id])
+  interactions      Interaction[]
+  tasks             Task[]
+}
+
+model Interaction {
+  id          String      @id @default(cuid())
+  type        String
+  direction   String?
+  subject     String?
+  content     String?     @db.Text
+  duration    Int?
+  leadId      String
+  userId      String
+  createdAt   DateTime    @default(now())
+  
+  lead        Lead        @relation(fields: [leadId], references: [id])
+  user        User        @relation(fields: [userId], references: [id])
+}
+
+model Task {
+  id          String      @id @default(cuid())
+  title       String
+  description String?     @db.Text
+  dueDate     DateTime
+  completed   Boolean     @default(false)
+  leadId      String
+  userId      String
+  createdAt   DateTime    @default(now())
+  
+  lead        Lead        @relation(fields: [leadId], references: [id])
+  user        User        @relation(fields: [userId], references: [id])
+}
