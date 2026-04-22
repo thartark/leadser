@@ -1,0 +1,642 @@
+import React, { useState, useEffect } from 'react';
+import {
+  LayoutDashboard, Users, Car, Wrench, BarChart3,
+  Settings, ChevronLeft, Search, Bell, Sun, Moon,
+  Plus, Phone, Mail, Calendar, MessageSquare, X, UserPlus,
+  PhoneCall, FileText, Clock, TrendingUp, TrendingDown, Target,
+  AlertCircle, Info, Check, Send, Bot, Loader2, Sparkles,
+  Filter, Activity, Trophy, DollarSign, Grid, Calendar as CalendarIcon,
+  Star, Award, Eye, Edit, Trash2, Copy, Download, Upload, RefreshCw,
+  Zap, Shield, Home, Percent, PieChart, LineChart, UserCheck,
+  Briefcase, ClipboardList, FolderOpen, Gift, Headphones, Heart,
+  HelpCircle, LogOut, Menu, Minimize2, Maximize2, MessageCircle,
+  Paperclip, Save, Share2, ShoppingBag, Sliders, Smartphone,
+  Tag, Timer, Trash, Truck, Video, Volume2, Wallet, Watch, Wifi,
+  Wind, ZoomIn, ZoomOut, Navigation, Compass, MapPin, Coffee,
+  Battery, Bluetooth, Cloud, Cpu, Database, Disc, Droplet
+} from 'lucide-react';
+import {
+  AreaChart, Area, BarChart as ReBarChart, Bar,
+  PieChart as RePieChart, Pie, Cell, LineChart as ReLineChart, Line,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  ComposedChart
+} from 'recharts';
+
+// ==================== MOCK DATA ====================
+const salespeople = [
+  { id: 1, name: "Sarah Chen", initials: "SC", leads: 47, appts: 32, units: 18, gross: 124500, closeRate: 38.3, color: "bg-indigo-500" },
+  { id: 2, name: "Mike Rodriguez", initials: "MR", leads: 52, appts: 41, units: 24, gross: 187200, closeRate: 46.2, color: "bg-emerald-500" },
+  { id: 3, name: "Jessica Williams", initials: "JW", leads: 38, appts: 28, units: 15, gross: 98300, closeRate: 39.5, color: "bg-amber-500" },
+  { id: 4, name: "David Kim", initials: "DK", leads: 44, appts: 35, units: 21, gross: 156700, closeRate: 47.7, color: "bg-rose-500" },
+  { id: 5, name: "Lisa Thompson", initials: "LT", leads: 41, appts: 29, units: 17, gross: 112400, closeRate: 41.5, color: "bg-cyan-500" },
+  { id: 6, name: "James Wilson", initials: "JW", leads: 35, appts: 22, units: 12, gross: 87600, closeRate: 34.3, color: "bg-purple-500" },
+];
+
+const leadsData = [
+  { id: 1, score: 92, name: "Thomas Bennett", phone: "(555) 123-4567", email: "thomas.b@email.com", vehicle: "2024 Ford F-150 Lariat", source: "AutoTrader", status: "Hot", rep: "Sarah Chen", lastActivity: "5m ago", daysInStage: 1, websiteVisits: 5, emailsOpened: 3, tradeInSubmitted: true, budget: 65000 },
+  { id: 2, score: 78, name: "Amanda Foster", phone: "(555) 234-5678", email: "amanda.f@email.com", vehicle: "2023 Tesla Model Y", source: "Website", status: "Warm", rep: "Mike Rodriguez", lastActivity: "2h ago", daysInStage: 3, websiteVisits: 3, emailsOpened: 2, tradeInSubmitted: false, budget: 55000 },
+  { id: 3, score: 45, name: "Marcus Webb", phone: "(555) 345-6789", email: "marcus.w@email.com", vehicle: "2022 BMW X5", source: "Cars.com", status: "Cold", rep: "Jessica Williams", lastActivity: "1d ago", daysInStage: 7, websiteVisits: 1, emailsOpened: 0, tradeInSubmitted: false, budget: 48000 },
+  { id: 4, score: 88, name: "Rachel Cohen", phone: "(555) 456-7890", email: "rachel.c@email.com", vehicle: "2024 Mercedes-Benz GLE", source: "Facebook", status: "Hot", rep: "David Kim", lastActivity: "15m ago", daysInStage: 2, websiteVisits: 4, emailsOpened: 4, tradeInSubmitted: true, budget: 75000 },
+  { id: 5, score: 65, name: "Kevin Zhang", phone: "(555) 567-8901", email: "kevin.z@email.com", vehicle: "2023 Toyota Tundra", source: "Phone", status: "Warm", rep: "Sarah Chen", lastActivity: "1h ago", daysInStage: 4, websiteVisits: 2, emailsOpened: 1, tradeInSubmitted: false, budget: 58000 },
+  { id: 6, score: 35, name: "Danielle Russo", phone: "(555) 678-9012", email: "danielle.r@email.com", vehicle: "2024 Honda CR-V", source: "Walk-in", status: "Cold", rep: "Lisa Thompson", lastActivity: "3d ago", daysInStage: 10, websiteVisits: 0, emailsOpened: 0, tradeInSubmitted: false, budget: 35000 },
+  { id: 7, score: 95, name: "Brandon Hayes", phone: "(555) 789-0123", email: "brandon.h@email.com", vehicle: "2024 Chevrolet Corvette", source: "AutoTrader", status: "Hot", rep: "Mike Rodriguez", lastActivity: "2m ago", daysInStage: 0, websiteVisits: 6, emailsOpened: 5, tradeInSubmitted: true, budget: 85000 },
+  { id: 8, score: 72, name: "Olivia Martinez", phone: "(555) 890-1234", email: "olivia.m@email.com", vehicle: "2023 Lexus RX", source: "Website", status: "Warm", rep: "James Wilson", lastActivity: "3h ago", daysInStage: 3, websiteVisits: 3, emailsOpened: 2, tradeInSubmitted: false, budget: 52000 },
+];
+
+const inventoryData = [
+  { id: 1, year: 2024, make: "Ford", model: "F-150", trim: "Lariat", stock: "F24001", price: 58995, daysOnLot: 12, status: "Available", type: "New", engine: "3.5L EcoBoost V6", color: "Oxford White" },
+  { id: 2, year: 2023, make: "Tesla", model: "Model Y", trim: "Long Range", stock: "T23002", price: 49990, daysOnLot: 28, status: "Available", type: "Used", engine: "Dual Motor", color: "Midnight Silver" },
+  { id: 3, year: 2022, make: "BMW", model: "X5", trim: "xDrive40i", stock: "B22003", price: 55995, daysOnLot: 45, status: "Pending", type: "Used", engine: "3.0L I6 Turbo", color: "Mineral White" },
+  { id: 4, year: 2024, make: "Mercedes", model: "GLE", trim: "450 4MATIC", stock: "M24004", price: 72995, daysOnLot: 8, status: "Available", type: "New", engine: "3.0L I6 Turbo", color: "Obsidian Black" },
+  { id: 5, year: 2023, make: "Toyota", model: "Tundra", trim: "1794", stock: "T23005", price: 62995, daysOnLot: 62, status: "In Recon", type: "Used", engine: "3.5L V6 Hybrid", color: "Smoked Mesquite" },
+  { id: 6, year: 2024, make: "Honda", model: "CR-V", trim: "Sport", stock: "H24006", price: 36995, daysOnLot: 5, status: "Available", type: "New", engine: "1.5L Turbo", color: "Radiant Red" },
+];
+
+const serviceAppointments = [
+  { id: 1, time: "9:00 AM", customer: "Robert Johnson", vehicle: "Honda Accord", service: "Oil Change", status: "In Progress", advisor: "Tom Brady" },
+  { id: 2, time: "10:30 AM", customer: "Emily Davis", vehicle: "Toyota Camry", service: "Brakes", status: "Waiting", advisor: "Sarah Lee" },
+  { id: 3, time: "1:00 PM", customer: "Michael Brown", vehicle: "Ford Explorer", service: "Transmission", status: "Scheduled", advisor: "Tom Brady" },
+  { id: 4, time: "2:30 PM", customer: "Jessica Miller", vehicle: "Tesla Model 3", service: "Tires", status: "Scheduled", advisor: "Sarah Lee" },
+];
+
+const leadVolumeData = Array.from({ length: 30 }, (_, i) => ({
+  day: i + 1,
+  leads: Math.floor(Math.random() * 25) + 8,
+  conversions: Math.floor(Math.random() * 8) + 2,
+}));
+
+const leadSourcesData = [
+  { name: "Website", value: 38, color: "#4F46E5" },
+  { name: "AutoTrader", value: 24, color: "#10B981" },
+  { name: "Cars.com", value: 18, color: "#F59E0B" },
+  { name: "Facebook", value: 12, color: "#F43F5E" },
+  { name: "Phone", value: 5, color: "#8B5CF6" },
+  { name: "Walk-in", value: 3, color: "#06B6D4" },
+];
+
+const salespersonPerformance = salespeople.map(sp => ({
+  name: sp.name.split(' ')[0],
+  units: sp.units,
+  gross: sp.gross / 1000,
+}));
+
+const hotLeads = leadsData.filter(l => l.status === "Hot").slice(0, 5);
+
+// ==================== COMPONENTS ====================
+
+const StatusBadge = ({ status }) => {
+  const config = {
+    Hot: "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400",
+    Warm: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+    Cold: "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300",
+    Available: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+    Sold: "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300",
+    Pending: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400",
+    "In Recon": "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+  };
+  return <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${config[status] || "bg-slate-100"}`}>{status}</span>;
+};
+
+const KpiCard = ({ title, value, change, icon: Icon, color }) => (
+  <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow">
+    <div className="flex justify-between items-start">
+      <div>
+        <p className="text-sm text-slate-500 dark:text-slate-400">{title}</p>
+        <p className="text-2xl font-bold mt-1">{value}</p>
+        {change && (
+          <div className={`flex items-center gap-1 mt-2 text-xs ${change.startsWith('+') ? 'text-emerald-600' : 'text-rose-600'}`}>
+            {change.startsWith('+') ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+            <span>{change}</span>
+          </div>
+        )}
+      </div>
+      <div className={`p-3 rounded-lg ${color}`}>
+        <Icon size={20} className="text-white" />
+      </div>
+    </div>
+  </div>
+);
+
+const Toast = ({ message, type, onClose }) => {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 4000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+  
+  const icons = { success: <Check size={16} />, error: <AlertCircle size={16} />, info: <Info size={16} /> };
+  const colors = { success: "bg-emerald-500", error: "bg-rose-500", info: "bg-indigo-500" };
+  
+  return (
+    <div className={`fixed bottom-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg text-white ${colors[type]} animate-fade-in`}>
+      {icons[type]}
+      <span className="text-sm">{message}</span>
+    </div>
+  );
+};
+
+const LeadDrawer = ({ lead, onClose, onAction }) => {
+  if (!lead) return null;
+  
+  return (
+    <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white dark:bg-slate-800 shadow-2xl z-50 transform transition-transform border-l border-slate-200 dark:border-slate-700" style={{ animation: 'slide-in 0.3s ease-out' }}>
+      <div className="flex flex-col h-full">
+        <div className="flex justify-between items-center p-5 border-b border-slate-200 dark:border-slate-700">
+          <h2 className="text-xl font-semibold">Lead Details</h2>
+          <button onClick={onClose} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"><X size={20} /></button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-5 space-y-5">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xl font-bold">
+              {lead.name.split(' ').map(n => n[0]).join('')}
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold">{lead.name}</h3>
+              <div className="flex items-center gap-2 mt-1">
+                <StatusBadge status={lead.status} />
+                <span className="text-sm text-slate-500">Score: {lead.score}/100</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            <h4 className="font-medium text-sm text-slate-500 uppercase tracking-wide">Contact Info</h4>
+            <div className="flex items-center gap-2 text-sm">
+              <Phone size={16} className="text-slate-400" />
+              <a href={`tel:${lead.phone}`} className="hover:text-indigo-600">{lead.phone}</a>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Mail size={16} className="text-slate-400" />
+              <a href={`mailto:${lead.email}`} className="hover:text-indigo-600">{lead.email}</a>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            <h4 className="font-medium text-sm text-slate-500 uppercase tracking-wide">Vehicle Interest</h4>
+            <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3">
+              <p className="font-medium">{lead.vehicle}</p>
+              <p className="text-sm text-slate-500 mt-1">Budget: ${lead.budget.toLocaleString()}</p>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            <h4 className="font-medium text-sm text-slate-500 uppercase tracking-wide">Lead Score Explanation</h4>
+            <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-3">
+              <p className="text-sm">Scored {lead.score}/100 — visited site {lead.websiteVisits}x, opened {lead.emailsOpened} emails, {lead.tradeInSubmitted ? "submitted a trade-in form" : "no trade-in yet"}</p>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            <h4 className="font-medium text-sm text-slate-500 uppercase tracking-wide">AI Suggested Next Action</h4>
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg p-3 text-white">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles size={16} />
+                <span className="font-medium">AI Assistant</span>
+              </div>
+              <p className="text-sm">Based on {lead.websiteVisits} site visits and {lead.emailsOpened} opened emails, this customer is ready for a payment quote.</p>
+              <button className="mt-3 px-4 py-2 bg-white/20 rounded-lg text-sm font-medium hover:bg-white/30 transition-colors">Send Quote</button>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            <h4 className="font-medium text-sm text-slate-500 uppercase tracking-wide">Quick Actions</h4>
+            <div className="grid grid-cols-2 gap-2">
+              <button onClick={() => onAction("Call", lead)} className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-sm hover:bg-slate-200 transition-colors"><Phone size={14} /> Call</button>
+              <button onClick={() => onAction("Text", lead)} className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-sm hover:bg-slate-200 transition-colors"><MessageSquare size={14} /> Text</button>
+              <button onClick={() => onAction("Email", lead)} className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-sm hover:bg-slate-200 transition-colors"><Mail size={14} /> Email</button>
+              <button onClick={() => onAction("Appointment", lead)} className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-sm hover:bg-slate-200 transition-colors"><Calendar size={14} /> Set Appt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ==================== PAGES ====================
+
+const Dashboard = ({ onToast, onSelectLead }) => (
+  <div className="space-y-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      <KpiCard title="New Leads Today" value="23" change="+12% vs yesterday" icon={Users} color="bg-indigo-500" />
+      <KpiCard title="Appointments Set" value="18" change="67% show rate" icon={Calendar} color="bg-emerald-500" />
+      <KpiCard title="Deals Closed MTD" value="47" change="$324,500 gross" icon={Target} color="bg-amber-500" />
+      <KpiCard title="Avg Response Time" value="4.2 min" change="-18% vs last week" icon={Clock} color="bg-rose-500" />
+    </div>
+    
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-slate-700">
+        <h3 className="font-semibold mb-4">Lead Volume (Last 30 Days)</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <AreaChart data={leadVolumeData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <XAxis dataKey="day" />
+            <YAxis />
+            <Tooltip />
+            <Area type="monotone" dataKey="leads" stroke="#4F46E5" fill="#4F46E5" fillOpacity={0.1} />
+            <Area type="monotone" dataKey="conversions" stroke="#10B981" fill="#10B981" fillOpacity={0.1} />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+      
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-slate-700">
+        <h3 className="font-semibold mb-4">Lead Sources</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <RePieChart>
+            <Pie data={leadSourcesData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={5} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+              {leadSourcesData.map((entry, idx) => <Cell key={idx} fill={entry.color} />)}
+            </Pie>
+            <Tooltip />
+          </RePieChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+    
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-slate-700">
+        <h3 className="font-semibold mb-4">Salesperson Performance</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <ReBarChart data={salespersonPerformance}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <XAxis dataKey="name" />
+            <YAxis yAxisId="left" />
+            <YAxis yAxisId="right" orientation="right" />
+            <Tooltip />
+            <Bar yAxisId="left" dataKey="units" fill="#4F46E5" name="Units Sold" />
+            <Bar yAxisId="right" dataKey="gross" fill="#10B981" name="Gross ($K)" />
+          </ReBarChart>
+        </ResponsiveContainer>
+      </div>
+      
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-slate-700">
+        <h3 className="font-semibold mb-4 flex items-center justify-between">
+          <span>Hot Leads Feed</span>
+          <span className="text-xs text-rose-500 animate-pulse">● Live</span>
+        </h3>
+        <div className="space-y-3 max-h-[300px] overflow-y-auto">
+          {hotLeads.map(lead => (
+            <div key={lead.id} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" onClick={() => onSelectLead(lead)}>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="font-medium text-sm">{lead.name}</p>
+                  <StatusBadge status={lead.status} />
+                </div>
+                <p className="text-xs text-slate-500 mt-1">{lead.vehicle}</p>
+                <p className="text-xs text-slate-400 mt-1">{lead.lastActivity}</p>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={(e) => { e.stopPropagation(); onToast(`Calling ${lead.name}...`, "info"); }} className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg hover:bg-emerald-200 transition-colors"><Phone size={14} className="text-emerald-600" /></button>
+                <button onClick={(e) => { e.stopPropagation(); onToast(`Texting ${lead.name}...`, "info"); }} className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg hover:bg-indigo-200 transition-colors"><MessageSquare size={14} className="text-indigo-600" /></button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const LeadsPage = ({ onToast, onSelectLead }) => {
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  
+  const filteredLeads = leadsData.filter(lead => {
+    if (filterStatus !== "all" && lead.status !== filterStatus) return false;
+    if (search && !lead.name.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
+  
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-wrap gap-3 items-center justify-between">
+        <div className="flex gap-2">
+          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-sm">
+            <option value="all">All Status</option>
+            <option value="Hot">Hot</option>
+            <option value="Warm">Warm</option>
+            <option value="Cold">Cold</option>
+          </select>
+          <input type="text" placeholder="Search leads..." value={search} onChange={(e) => setSearch(e.target.value)} className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-sm w-64" />
+        </div>
+        <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"><Filter size={16} /> Filter</button>
+      </div>
+      
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-slate-50 dark:bg-slate-700/50">
+              <tr className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                <th className="px-4 py-3">Score</th>
+                <th className="px-4 py-3">Customer</th>
+                <th className="px-4 py-3">Vehicle</th>
+                <th className="px-4 py-3">Source</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Rep</th>
+                <th className="px-4 py-3">Activity</th>
+                <th className="px-4 py-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+              {filteredLeads.map(lead => (
+                <tr key={lead.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 cursor-pointer transition-colors" onClick={() => onSelectLead(lead)}>
+                  <td className="px-4 py-3">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${lead.score >= 80 ? 'bg-rose-100 text-rose-700' : lead.score >= 60 ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700'}`}>
+                      {lead.score}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 font-medium text-sm">{lead.name}</td>
+                  <td className="px-4 py-3 text-sm">{lead.vehicle.split(' ').slice(0, 3).join(' ')}</td>
+                  <td className="px-4 py-3 text-sm">{lead.source}</td>
+                  <td className="px-4 py-3"><StatusBadge status={lead.status} /></td>
+                  <td className="px-4 py-3 text-sm">{lead.rep.split(' ')[0]}</td>
+                  <td className="px-4 py-3 text-sm text-slate-500">{lead.lastActivity}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-1">
+                      <button onClick={(e) => { e.stopPropagation(); onToast(`Calling ${lead.name}`, "info"); }} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors"><Phone size={14} /></button>
+                      <button onClick={(e) => { e.stopPropagation(); onToast(`Setting appointment for ${lead.name}`, "success"); }} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors"><Calendar size={14} /></button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const InventoryPage = ({ onToast }) => (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+    {inventoryData.map(vehicle => (
+      <div key={vehicle.id} className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden hover:shadow-md transition-all hover:scale-[1.02] cursor-pointer">
+        <div className="h-40 bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xl font-bold">
+          {vehicle.make} {vehicle.model}
+        </div>
+        <div className="p-4">
+          <div className="flex justify-between items-start mb-2">
+            <div>
+              <h3 className="font-semibold">{vehicle.year} {vehicle.make} {vehicle.model}</h3>
+              <p className="text-xs text-slate-500 mt-1">Stock #{vehicle.stock}</p>
+            </div>
+            <StatusBadge status={vehicle.status} />
+          </div>
+          <div className="flex justify-between items-center mb-3">
+            <p className="text-xl font-bold text-indigo-600">${vehicle.price.toLocaleString()}</p>
+            <div className={`text-sm font-medium ${vehicle.daysOnLot < 30 ? 'text-emerald-600' : vehicle.daysOnLot < 60 ? 'text-amber-600' : 'text-rose-600'}`}>
+              {vehicle.daysOnLot} days
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={() => onToast(`Matching leads for ${vehicle.make} ${vehicle.model}`, "success")} className="flex-1 py-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg text-sm font-medium hover:bg-indigo-100 transition-colors">
+              Match to Lead
+            </button>
+            <button className="flex-1 py-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-sm hover:bg-slate-200 transition-colors">
+              Details
+            </button>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+const ServicePage = ({ onToast }) => (
+  <div className="space-y-5">
+    <div className="grid grid-cols-4 gap-4">
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700 text-center">
+        <p className="text-2xl font-bold">{serviceAppointments.length}</p>
+        <p className="text-sm text-slate-500">Total ROs Today</p>
+      </div>
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700 text-center">
+        <p className="text-2xl font-bold text-emerald-600">2.4h</p>
+        <p className="text-sm text-slate-500">Avg Cycle Time</p>
+      </div>
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700 text-center">
+        <p className="text-2xl font-bold text-indigo-600">4.8</p>
+        <p className="text-sm text-slate-500">CSI Score</p>
+      </div>
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700 text-center">
+        <p className="text-2xl font-bold text-amber-600">3</p>
+        <p className="text-sm text-slate-500">Loaners Out</p>
+      </div>
+    </div>
+    
+    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+      <div className="divide-y divide-slate-100 dark:divide-slate-700">
+        {serviceAppointments.map(apt => (
+          <div key={apt.id} className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+            <div className="flex items-center gap-4">
+              <div className="w-20 text-center">
+                <p className="font-bold text-indigo-600">{apt.time}</p>
+              </div>
+              <div>
+                <p className="font-medium">{apt.customer}</p>
+                <p className="text-sm text-slate-500">{apt.vehicle}</p>
+              </div>
+            </div>
+            <div className="flex-1 px-4">
+              <p className="text-sm">{apt.service}</p>
+              <p className="text-xs text-slate-500">Advisor: {apt.advisor}</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                apt.status === "Completed" ? "bg-emerald-100 text-emerald-700" : 
+                apt.status === "In Progress" ? "bg-indigo-100 text-indigo-700" : 
+                "bg-slate-100 text-slate-700"
+              }`}>{apt.status}</span>
+              <button onClick={() => onToast(`Checked in ${apt.customer}`, "success")} className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-sm hover:bg-indigo-100 transition-colors">
+                Update
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+const AnalyticsPage = ({ onToast }) => (
+  <div className="space-y-6">
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
+      <h2 className="text-xl font-semibold mb-4">Sales Leaderboard</h2>
+      <div className="space-y-3">
+        {[...salespeople].sort((a, b) => b.units - a.units).map((rep, idx) => (
+          <div key={rep.id} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/30 rounded-lg">
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-full ${rep.color} flex items-center justify-center text-white text-xs font-bold`}>
+                {rep.initials}
+              </div>
+              <div>
+                <p className="font-medium text-sm">{rep.name}</p>
+                <p className="text-xs text-slate-500">{rep.units} units · ${(rep.gross / 1000).toFixed(0)}K gross</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="font-medium text-emerald-600">{rep.closeRate}%</p>
+              <p className="text-xs text-slate-500">close rate</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+    
+    <div className="bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl p-6 text-white">
+      <p className="text-sm font-medium mb-2">📊 Forecast</p>
+      <p className="text-lg">On pace for 87 units this month. Need 12 more to hit goal.</p>
+      <button className="mt-3 px-4 py-2 bg-white/20 rounded-lg text-sm font-medium hover:bg-white/30 transition-colors">
+        View Recommendations
+      </button>
+    </div>
+  </div>
+);
+
+const SettingsPage = () => (
+  <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
+    <h3 className="font-semibold mb-4">Settings</h3>
+    <div className="space-y-4">
+      {salespeople.map(rep => (
+        <div key={rep.id} className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-700/30 rounded-lg">
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-full ${rep.color} flex items-center justify-center text-white font-bold`}>
+              {rep.initials}
+            </div>
+            <div>
+              <p className="font-medium">{rep.name}</p>
+              <p className="text-xs text-slate-500">Sales Consultant</p>
+            </div>
+          </div>
+          <button className="text-indigo-500 text-sm hover:text-indigo-600">Edit</button>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+// ==================== MAIN APP ====================
+const App = () => {
+  const [darkMode, setDarkMode] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [currentPage, setCurrentPage] = useState("dashboard");
+  const [selectedLead, setSelectedLead] = useState(null);
+  const [toasts, setToasts] = useState([]);
+  
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+  
+  const addToast = (message, type = "success") => {
+    const id = Date.now();
+    setToasts(prev => [...prev, { id, message, type }]);
+  };
+  
+  const removeToast = (id) => setToasts(prev => prev.filter(t => t.id !== id));
+  
+  const navigation = [
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "leads", label: "Leads", icon: Users },
+    { id: "inventory", label: "Inventory", icon: Car },
+    { id: "service", label: "Service", icon: Wrench },
+    { id: "analytics", label: "Analytics", icon: BarChart3 },
+    { id: "settings", label: "Settings", icon: Settings },
+  ];
+  
+  const renderPage = () => {
+    switch (currentPage) {
+      case "dashboard": return <Dashboard onToast={addToast} onSelectLead={setSelectedLead} />;
+      case "leads": return <LeadsPage onToast={addToast} onSelectLead={setSelectedLead} />;
+      case "inventory": return <InventoryPage onToast={addToast} />;
+      case "service": return <ServicePage onToast={addToast} />;
+      case "analytics": return <AnalyticsPage onToast={addToast} />;
+      case "settings": return <SettingsPage />;
+      default: return <Dashboard onToast={addToast} onSelectLead={setSelectedLead} />;
+    }
+  };
+  
+  return (
+    <div className="flex h-screen bg-slate-50 dark:bg-slate-900">
+      {/* Sidebar */}
+      <aside className={`${sidebarCollapsed ? 'w-20' : 'w-64'} bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 transition-all duration-300 flex flex-col`}>
+        <div className="p-5 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+          {!sidebarCollapsed && (
+            <div>
+              <span className="text-xl font-bold bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">AutoDeal CRM</span>
+              <p className="text-xs text-slate-500">Dealership Suite</p>
+            </div>
+          )}
+          <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+            <ChevronLeft size={18} className={sidebarCollapsed ? "rotate-180" : ""} />
+          </button>
+        </div>
+        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+          {navigation.map(item => (
+            <button
+              key={item.id}
+              onClick={() => setCurrentPage(item.id)}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
+                currentPage === item.id 
+                  ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' 
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+              }`}
+            >
+              <item.icon size={20} />
+              {!sidebarCollapsed && <span className="text-sm font-medium">{item.label}</span>}
+            </button>
+          ))}
+        </nav>
+      </aside>
+      
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top Bar */}
+        <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-3 flex items-center justify-between">
+          <h1 className="text-lg font-semibold">{navigation.find(n => n.id === currentPage)?.label || "Dashboard"}</h1>
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search customers, vehicles..."
+                className="pl-9 pr-4 py-1.5 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+            <button onClick={() => setDarkMode(!darkMode)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+              {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+            <div className="relative">
+              <Bell size={18} className="cursor-pointer" />
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-rose-500 rounded-full"></span>
+            </div>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold">
+              JD
+            </div>
+          </div>
+        </header>
+        
+        {/* Page Content */}
+        <main className="flex-1 overflow-y-auto p-6">
+          {renderPage()}
+        </main>
+      </div>
+      
+      {/* Drawers & Overlays */}
+      {selectedLead && (
+        <LeadDrawer 
+          lead={selectedLead} 
+          onClose={() => setSelectedLead(null)} 
+          onAction={(action, lead) => addToast(`${action} action for ${lead.name}`, "success")} 
+        />
+      )}
+      
+      {/* Toasts */}
+      {toasts.map(toast => (
+        <Toast key={toast.id} message={toast.message} type={toast.type} onClose={() => removeToast(toast.id)} />
+      ))}
+    </div>
+  );
+};
+
+export default App;
