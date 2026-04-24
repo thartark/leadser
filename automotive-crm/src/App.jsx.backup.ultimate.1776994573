@@ -1,0 +1,284 @@
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  LayoutDashboard, Users, Car, Wrench, BarChart3,
+  Settings, ChevronLeft, Search, Bell, Sun, Moon,
+  Plus, Phone, Mail, Calendar, MessageSquare, X, UserPlus,
+  PhoneCall, FileText, Clock, TrendingUp, TrendingDown, Target,
+  AlertCircle, Info, Check, Send, Bot, Loader2, Sparkles,
+  Filter, Activity, Trophy, DollarSign, Grid, Calendar as CalendarIcon,
+  Star, Award, Eye, Edit, Trash2, Download, RefreshCw,
+  Zap, Shield, Home, Percent, PieChart, LineChart, UserCheck,
+  Briefcase, ClipboardList, FolderOpen, Gift, Headphones,
+  HelpCircle, LogOut, Menu, Minimize2, Maximize2, MessageCircle,
+  Paperclip, Save, Share2, ShoppingBag, Smartphone,
+  Tag, Timer, Trash, Truck, Video, Volume2, Wallet, Watch,
+  Wind, ZoomIn, ZoomOut, Navigation, Compass, MapPin,
+  Crown, Medal, Globe, Lock, Unlock, Award as AwardIcon,
+  TrendingUp as TrendingUpIcon, Clock as ClockIcon,
+  XCircle, CheckCircle, AlertTriangle, Users as UsersIcon,
+  PlusCircle, MinusCircle, ArrowUp, ArrowDown, MoreVertical,
+  ChevronDown, ChevronUp, Copy, ExternalLink, Link, Printer,
+  RefreshCcw, RotateCcw, Settings as SettingsIcon, Sliders,
+  BarChart as BarChartIcon, PieChart as PieChartIcon, LineChart as LineChartIcon,
+  MailOpen, MailCheck, MailWarning, Inbox, Archive, Flag, Bookmark,
+  ShoppingCart, CreditCard, Receipt, FileSpreadsheet, Database, Cloud,
+  Server, Monitor, Tablet, Smartphone as SmartphoneIcon, Laptop, Cpu
+} from 'lucide-react';
+import {
+  AreaChart, Area, BarChart as ReBarChart, Bar,
+  PieChart as RePieChart, Pie, Cell, LineChart as ReLineChart, Line,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  ComposedChart
+} from 'recharts';
+
+// ==================== MOCK DATA ====================
+const salespeople = [
+  { id: 1, name: "Sarah Chen", initials: "SC", leads: 47, appts: 32, units: 18, gross: 124500, closeRate: 38.3, color: "bg-indigo-500", email: "sarah.chen@autodeal.com", phone: "(555) 111-2222", rank: 2, target: 20, achievement: 90 },
+  { id: 2, name: "Mike Rodriguez", initials: "MR", leads: 52, appts: 41, units: 24, gross: 187200, closeRate: 46.2, color: "bg-emerald-500", email: "mike.rodriguez@autodeal.com", phone: "(555) 222-3333", rank: 1, target: 25, achievement: 96 },
+  { id: 3, name: "Jessica Williams", initials: "JW", leads: 38, appts: 28, units: 15, gross: 98300, closeRate: 39.5, color: "bg-amber-500", email: "jessica.williams@autodeal.com", phone: "(555) 333-4444", rank: 4, target: 18, achievement: 83 },
+  { id: 4, name: "David Kim", initials: "DK", leads: 44, appts: 35, units: 21, gross: 156700, closeRate: 47.7, color: "bg-rose-500", email: "david.kim@autodeal.com", phone: "(555) 444-5555", rank: 3, target: 22, achievement: 95 },
+  { id: 5, name: "Lisa Thompson", initials: "LT", leads: 41, appts: 29, units: 17, gross: 112400, closeRate: 41.5, color: "bg-cyan-500", email: "lisa.thompson@autodeal.com", phone: "(555) 555-6666", rank: 5, target: 19, achievement: 89 },
+  { id: 6, name: "James Wilson", initials: "JW", leads: 35, appts: 22, units: 12, gross: 87600, closeRate: 34.3, color: "bg-purple-500", email: "james.wilson@autodeal.com", phone: "(555) 666-7777", rank: 6, target: 15, achievement: 80 },
+];
+
+const leadsData = [
+  { id: 1, score: 92, name: "Thomas Bennett", phone: "(555) 123-4567", email: "thomas.b@email.com", vehicle: "2024 Ford F-150 Lariat", source: "AutoTrader", status: "Hot", rep: "Sarah Chen", lastActivity: "5m ago", daysInStage: 1, websiteVisits: 5, emailsOpened: 3, tradeInSubmitted: true, budget: 65000, interest: "Truck" },
+  { id: 2, score: 78, name: "Amanda Foster", phone: "(555) 234-5678", email: "amanda.f@email.com", vehicle: "2023 Tesla Model Y", source: "Website", status: "Warm", rep: "Mike Rodriguez", lastActivity: "2h ago", daysInStage: 3, websiteVisits: 3, emailsOpened: 2, tradeInSubmitted: false, budget: 55000, interest: "SUV" },
+  { id: 3, score: 45, name: "Marcus Webb", phone: "(555) 345-6789", email: "marcus.w@email.com", vehicle: "2022 BMW X5", source: "Cars.com", status: "Cold", rep: "Jessica Williams", lastActivity: "1d ago", daysInStage: 7, websiteVisits: 1, emailsOpened: 0, tradeInSubmitted: false, budget: 48000, interest: "Luxury SUV" },
+  { id: 4, score: 88, name: "Rachel Cohen", phone: "(555) 456-7890", email: "rachel.c@email.com", vehicle: "2024 Mercedes-Benz GLE", source: "Facebook", status: "Hot", rep: "David Kim", lastActivity: "15m ago", daysInStage: 2, websiteVisits: 4, emailsOpened: 4, tradeInSubmitted: true, budget: 75000, interest: "Luxury" },
+  { id: 5, score: 65, name: "Kevin Zhang", phone: "(555) 567-8901", email: "kevin.z@email.com", vehicle: "2023 Toyota Tundra", source: "Phone", status: "Warm", rep: "Sarah Chen", lastActivity: "1h ago", daysInStage: 4, websiteVisits: 2, emailsOpened: 1, tradeInSubmitted: false, budget: 58000, interest: "Truck" },
+  { id: 6, score: 35, name: "Danielle Russo", phone: "(555) 678-9012", email: "danielle.r@email.com", vehicle: "2024 Honda CR-V", source: "Walk-in", status: "Cold", rep: "Lisa Thompson", lastActivity: "3d ago", daysInStage: 10, websiteVisits: 0, emailsOpened: 0, tradeInSubmitted: false, budget: 35000, interest: "SUV" },
+  { id: 7, score: 95, name: "Brandon Hayes", phone: "(555) 789-0123", email: "brandon.h@email.com", vehicle: "2024 Chevrolet Corvette", source: "AutoTrader", status: "Hot", rep: "Mike Rodriguez", lastActivity: "2m ago", daysInStage: 0, websiteVisits: 6, emailsOpened: 5, tradeInSubmitted: true, budget: 85000, interest: "Sports Car" },
+  { id: 8, score: 72, name: "Olivia Martinez", phone: "(555) 890-1234", email: "olivia.m@email.com", vehicle: "2023 Lexus RX", source: "Website", status: "Warm", rep: "James Wilson", lastActivity: "3h ago", daysInStage: 3, websiteVisits: 3, emailsOpened: 2, tradeInSubmitted: false, budget: 52000, interest: "Luxury SUV" },
+];
+
+const inventoryData = [
+  { id: 1, year: 2024, make: "Ford", model: "F-150", trim: "Lariat", stock: "F24001", price: 58995, daysOnLot: 12, status: "Available", type: "New", engine: "3.5L EcoBoost V6", color: "Oxford White", views: 245, inquiries: 12 },
+  { id: 2, year: 2023, make: "Tesla", model: "Model Y", trim: "Long Range", stock: "T23002", price: 49990, daysOnLot: 28, status: "Available", type: "Used", engine: "Dual Motor", color: "Midnight Silver", views: 189, inquiries: 8 },
+  { id: 3, year: 2022, make: "BMW", model: "X5", trim: "xDrive40i", stock: "B22003", price: 55995, daysOnLot: 45, status: "Pending", type: "Used", engine: "3.0L I6 Turbo", color: "Mineral White", views: 156, inquiries: 5 },
+  { id: 4, year: 2024, make: "Mercedes", model: "GLE", trim: "450 4MATIC", stock: "M24004", price: 72995, daysOnLot: 8, status: "Available", type: "New", engine: "3.0L I6 Turbo", color: "Obsidian Black", views: 312, inquiries: 18 },
+  { id: 5, year: 2023, make: "Toyota", model: "Tundra", trim: "1794", stock: "T23005", price: 62995, daysOnLot: 62, status: "In Recon", type: "Used", engine: "3.5L V6 Hybrid", color: "Smoked Mesquite", views: 98, inquiries: 3 },
+  { id: 6, year: 2024, make: "Honda", model: "CR-V", trim: "Sport", stock: "H24006", price: 36995, daysOnLot: 5, status: "Available", type: "New", engine: "1.5L Turbo", color: "Radiant Red", views: 267, inquiries: 15 },
+];
+
+const serviceAppointments = [
+  { id: 1, time: "9:00 AM", customer: "Robert Johnson", vehicle: "Honda Accord", service: "Oil Change", status: "In Progress", advisor: "Tom Brady" },
+  { id: 2, time: "10:30 AM", customer: "Emily Davis", vehicle: "Toyota Camry", service: "Brakes", status: "Waiting", advisor: "Sarah Lee" },
+  { id: 3, time: "1:00 PM", customer: "Michael Brown", vehicle: "Ford Explorer", service: "Transmission", status: "Scheduled", advisor: "Tom Brady" },
+  { id: 4, time: "2:30 PM", customer: "Jessica Miller", vehicle: "Tesla Model 3", service: "Tires", status: "Scheduled", advisor: "Sarah Lee" },
+];
+
+const leadVolumeData = Array.from({ length: 30 }, (_, i) => ({ day: i + 1, leads: Math.floor(Math.random() * 25) + 8, conversions: Math.floor(Math.random() * 8) + 2 }));
+const leadSourcesData = [{ name: "Website", value: 38, color: "#4F46E5" }, { name: "AutoTrader", value: 24, color: "#10B981" }, { name: "Cars.com", value: 18, color: "#F59E0B" }, { name: "Facebook", value: 12, color: "#F43F5E" }, { name: "Phone", value: 5, color: "#8B5CF6" }, { name: "Walk-in", value: 3, color: "#06B6D4" }];
+const salespersonPerformance = salespeople.map(sp => ({ name: sp.name.split(' ')[0], units: sp.units, gross: sp.gross / 1000 }));
+const hotLeads = leadsData.filter(l => l.status === "Hot").slice(0, 5);
+const monthlyGoals = [{ month: "Jan", target: 15, actual: 14 }, { month: "Feb", target: 15, actual: 16 }, { month: "Mar", target: 18, actual: 17 }, { month: "Apr", target: 20, actual: 22 }, { month: "May", target: 22, actual: 21 }, { month: "Jun", target: 25, actual: 24 }];
+const lostDealReasons = [{ name: "Price", value: 35, color: "#F43F5E" }, { name: "Financing", value: 25, color: "#F59E0B" }, { name: "Competitor", value: 20, color: "#8B5CF6" }, { name: "Timing", value: 12, color: "#06B6D4" }, { name: "Vehicle", value: 8, color: "#10B981" }];
+const responseTimeHeatmap = [{ hour: "8am", Mon: 4.2, Tue: 3.8, Wed: 4.1, Thu: 3.9, Fri: 4.5 }, { hour: "10am", Mon: 3.5, Tue: 3.2, Wed: 3.4, Thu: 3.3, Fri: 3.8 }, { hour: "12pm", Mon: 5.2, Tue: 4.9, Wed: 5.1, Thu: 4.8, Fri: 5.5 }, { hour: "2pm", Mon: 4.8, Tue: 4.5, Wed: 4.7, Thu: 4.6, Fri: 5.1 }, { hour: "4pm", Mon: 6.2, Tue: 5.9, Wed: 6.1, Thu: 5.8, Fri: 6.5 }];
+const recentActivities = [{ id: 1, type: "call", user: "Sarah Chen", action: "called", target: "Thomas Bennett", time: "5 min ago", outcome: "Left voicemail" }, { id: 2, type: "email", user: "Mike Rodriguez", action: "sent email to", target: "Amanda Foster", time: "15 min ago", outcome: "Opened" }, { id: 3, type: "appointment", user: "David Kim", action: "set appointment with", target: "Rachel Cohen", time: "1 hour ago", outcome: "Confirmed" }, { id: 4, type: "deal", user: "Jessica Williams", action: "closed deal with", target: "Marcus Webb", time: "2 hours ago", outcome: "Sold" }, { id: 5, type: "note", user: "Lisa Thompson", action: "added note for", target: "Kevin Zhang", time: "3 hours ago", outcome: "Interested" }];
+const notificationsData = [{ id: 1, type: "lead", message: "New lead from AutoTrader", time: "2 min ago", read: false }, { id: 2, type: "alert", message: "3 leads need follow-up", time: "15 min ago", read: false }, { id: 3, type: "reminder", message: "Appointment in 30 min", time: "30 min ago", read: false }];
+const campaignsData = [{ id: 1, name: "Summer Sale", type: "Email", sent: 2500, openRate: 42, revenue: 125000 }, { id: 2, name: "Labor Day", type: "SMS", sent: 1800, openRate: 78, revenue: 189000 }, { id: 3, name: "New Models", type: "Email", sent: 3200, openRate: 35, revenue: 89000 }];
+
+// ==================== COMPONENTS ====================
+
+const StatusBadge = ({ status }) => {
+  const config = { Hot: "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400", Warm: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400", Cold: "bg-slate-100 text-slate-700", Available: "bg-emerald-100 text-emerald-700", Sold: "bg-slate-100", Pending: "bg-indigo-100 text-indigo-700", "In Progress": "bg-indigo-100 text-indigo-700", Waiting: "bg-amber-100 text-amber-700", Scheduled: "bg-slate-100", Completed: "bg-emerald-100 text-emerald-700", active: "bg-emerald-100 text-emerald-700" };
+  return <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${config[status] || "bg-slate-100"}`}>{status}</span>;
+};
+
+const KpiCard = ({ title, value, change, icon: Icon, color }) => (
+  <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all group">
+    <div className="flex justify-between items-start">
+      <div><p className="text-sm text-slate-500">{title}</p><p className="text-2xl font-bold mt-1">{value}</p>{change && <div className={`flex items-center gap-1 mt-2 text-xs ${change.startsWith('+') ? 'text-emerald-600' : 'text-rose-600'}`}>{change.startsWith('+') ? <TrendingUp size={12} /> : <TrendingDown size={12} />}<span>{change}</span></div>}</div>
+      <div className={`p-3 rounded-lg ${color} group-hover:scale-110 transition-transform`}><Icon size={20} className="text-white" /></div>
+    </div>
+  </div>
+);
+
+const Toast = ({ message, type, onClose }) => {
+  useEffect(() => { const timer = setTimeout(onClose, 4000); return () => clearTimeout(timer); }, [onClose]);
+  const icons = { success: <Check size={16} />, error: <AlertCircle size={16} />, info: <Info size={16} /> };
+  const colors = { success: "bg-emerald-500", error: "bg-rose-500", info: "bg-indigo-500" };
+  return <div className={`fixed bottom-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg text-white ${colors[type]} animate-fade-in`}>{icons[type]}<span className="text-sm">{message}</span></div>;
+};
+
+const QuickAddFab = ({ onAction }) => {
+  const [open, setOpen] = useState(false);
+  const actions = [{ icon: <UserPlus size={16} />, label: "Add Lead", color: "bg-indigo-500", action: "lead" }, { icon: <PhoneCall size={16} />, label: "Log Call", color: "bg-emerald-500", action: "call" }, { icon: <Calendar size={16} />, label: "Set Appointment", color: "bg-amber-500", action: "appointment" }, { icon: <FileText size={16} />, label: "Add Note", color: "bg-purple-500", action: "note" }];
+  return (<div className="fixed bottom-6 right-6 z-40">{open && (<div className="absolute bottom-16 right-0 space-y-2 animate-fade-in">{actions.map((action, idx) => (<button key={idx} onClick={() => { onAction(action.action); setOpen(false); }} className={`flex items-center gap-2 px-4 py-2 ${action.color} text-white rounded-full shadow-lg hover:opacity-90 transition-all text-sm whitespace-nowrap`}>{action.icon}{action.label}</button>))}</div>)}<button onClick={() => setOpen(!open)} className={`w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all ${open ? 'bg-slate-600 rotate-45' : 'bg-indigo-500 hover:bg-indigo-600'} text-white`}><Plus size={24} /></button></div>);
+};
+
+const GlobalSearch = ({ onSelect }) => {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [showResults, setShowResults] = useState(false);
+  const searchRef = useRef(null);
+  useEffect(() => { const handleClickOutside = (e) => { if (searchRef.current && !searchRef.current.contains(e.target)) setShowResults(false); }; document.addEventListener('mousedown', handleClickOutside); return () => document.removeEventListener('mousedown', handleClickOutside); }, []);
+  useEffect(() => { if (query.length > 1) { const matchedLeads = leadsData.filter(l => l.name.toLowerCase().includes(query.toLowerCase())).slice(0, 5); const matchedVehicles = inventoryData.filter(v => `${v.make} ${v.model}`.toLowerCase().includes(query.toLowerCase())).slice(0, 5); setResults([...matchedLeads.map(l => ({ type: "lead", ...l })), ...matchedVehicles.map(v => ({ type: "vehicle", ...v }))]); setShowResults(true); } else { setResults([]); setShowResults(false); } }, [query]);
+  return (<div className="relative" ref={searchRef}><Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" /><input type="text" placeholder="Search customers, vehicles..." value={query} onChange={(e) => setQuery(e.target.value)} className="pl-9 pr-4 py-1.5 text-sm border rounded-lg bg-slate-50 dark:bg-slate-800 w-80 focus:outline-none focus:ring-2 focus:ring-indigo-500" />{showResults && results.length > 0 && (<div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-lg border z-50 max-h-96 overflow-y-auto">{results.map(result => (<button key={result.id} onClick={() => { onSelect(result); setQuery(""); setShowResults(false); }} className="w-full text-left px-4 py-2 hover:bg-slate-50 border-b last:border-0"><div className="flex items-center gap-3">{result.type === "lead" ? <Users size={14} className="text-indigo-500" /> : <Car size={14} className="text-emerald-500" />}<div><p className="text-sm font-medium">{result.type === "lead" ? result.name : `${result.make} ${result.model}`}</p><p className="text-xs text-slate-500">{result.type === "lead" ? result.vehicle : `Stock #${result.stock}`}</p></div></div></button>))}</div>)}</div>);
+};
+
+const LeadDrawer = ({ lead, onClose, onAction }) => {
+  if (!lead) return null;
+  return (<div className="fixed inset-y-0 right-0 w-full max-w-md bg-white dark:bg-slate-800 shadow-2xl z-50 transform transition-transform border-l" style={{ animation: 'slide-in 0.3s ease-out' }}><div className="flex flex-col h-full"><div className="flex justify-between items-center p-5 border-b"><h2 className="text-xl font-semibold">Lead Details</h2><button onClick={onClose} className="p-1 hover:bg-slate-100 rounded-lg"><X size={20} /></button></div><div className="flex-1 overflow-y-auto p-5 space-y-5"><div className="flex items-center gap-4"><div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xl font-bold">{lead.name.split(' ').map(n => n[0]).join('')}</div><div><h3 className="text-lg font-semibold">{lead.name}</h3><div className="flex items-center gap-2 mt-1"><StatusBadge status={lead.status} /><span className="text-sm text-slate-500">Score: {lead.score}/100</span></div></div></div><div className="space-y-3"><h4 className="font-medium text-sm text-slate-500 uppercase">Contact Info</h4><div className="flex items-center gap-2 text-sm"><Phone size={16} className="text-slate-400" /><a href={`tel:${lead.phone}`} className="hover:text-indigo-600">{lead.phone}</a></div><div className="flex items-center gap-2 text-sm"><Mail size={16} className="text-slate-400" /><a href={`mailto:${lead.email}`} className="hover:text-indigo-600">{lead.email}</a></div></div><div className="space-y-3"><h4 className="font-medium text-sm text-slate-500 uppercase">Vehicle Interest</h4><div className="bg-slate-50 rounded-lg p-3"><p className="font-medium">{lead.vehicle}</p><p className="text-sm text-slate-500 mt-1">Budget: ${lead.budget.toLocaleString()}</p></div></div><div className="space-y-3"><h4 className="font-medium text-sm text-slate-500 uppercase">AI Suggested Next Action</h4><div className="bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg p-3 text-white"><div className="flex items-center gap-2 mb-2"><Sparkles size={16} /><span className="font-medium">AI Assistant</span></div><p className="text-sm">Based on {lead.websiteVisits} site visits, this customer is ready for a quote.</p><button className="mt-3 px-4 py-2 bg-white/20 rounded-lg text-sm font-medium hover:bg-white/30">Send Quote</button></div></div><div className="space-y-3"><h4 className="font-medium text-sm text-slate-500 uppercase">Quick Actions</h4><div className="grid grid-cols-2 gap-2"><button onClick={() => onAction("Call", lead)} className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-100 rounded-lg text-sm"><Phone size={14} /> Call</button><button onClick={() => onAction("Text", lead)} className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-100 rounded-lg text-sm"><MessageSquare size={14} /> Text</button><button onClick={() => onAction("Email", lead)} className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-100 rounded-lg text-sm"><Mail size={14} /> Email</button><button onClick={() => onAction("Appointment", lead)} className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-100 rounded-lg text-sm"><Calendar size={14} /> Set Appt</button></div></div></div></div></div>);
+};
+
+const AiAssistant = ({ onClose, onSendMessage }) => {
+  const [messages, setMessages] = useState([{ role: "assistant", content: "Hello! I'm your AI sales assistant. Ask me about leads, inventory, or performance." }]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const handleSend = () => {
+    if (!input.trim()) return;
+    setMessages(prev => [...prev, { role: "user", content: input }]);
+    setInput("");
+    setLoading(true);
+    setTimeout(() => {
+      let response = "";
+      if (input.toLowerCase().includes("hot lead")) response = "Your hottest leads are Thomas Bennett (92) and Brandon Hayes (95). Both have multiple site visits.";
+      else if (input.toLowerCase().includes("close rate")) response = "Current close rate is 41.2%. David Kim leads with 47.7%.";
+      else response = "Based on your data, focus on the 5 hot leads. Your Facebook source has the best ROI at 1500%.";
+      setMessages(prev => [...prev, { role: "assistant", content: response }]);
+      setLoading(false);
+      onSendMessage(input);
+    }, 1000);
+  };
+  return (<div className="fixed inset-y-0 right-0 w-96 bg-white dark:bg-slate-800 shadow-2xl z-50 flex flex-col border-l"><div className="flex justify-between items-center p-4 border-b"><div className="flex items-center gap-2"><Bot size={20} className="text-indigo-500" /><h3 className="font-semibold">AI Assistant</h3></div><button onClick={onClose} className="p-1 hover:bg-slate-100 rounded"><X size={18} /></button></div><div className="flex-1 overflow-y-auto p-4 space-y-3">{messages.map((msg, idx) => (<div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[85%] p-3 rounded-xl ${msg.role === 'user' ? 'bg-indigo-500 text-white' : 'bg-slate-100'}`}><p className="text-sm">{msg.content}</p></div></div>))}{loading && (<div className="flex justify-start"><div className="bg-slate-100 p-3 rounded-xl"><Loader2 size={16} className="animate-spin" /></div></div>)}</div><div className="p-4 border-t"><div className="flex gap-2"><input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleSend()} placeholder="Ask me anything..." className="flex-1 px-3 py-2 border rounded-lg bg-slate-50 text-sm" /><button onClick={handleSend} className="p-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600"><Send size={16} /></button></div></div></div>);
+};
+
+const NotificationCenter = ({ notifications, onClose, onMarkRead }) => (<div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-slate-800 rounded-xl shadow-lg border z-50 overflow-hidden"><div className="flex justify-between items-center p-4 border-b"><h3 className="font-semibold">Notifications</h3><button onClick={onClose} className="p-1 hover:bg-slate-100 rounded"><X size={16} /></button></div><div className="max-h-96 overflow-y-auto">{notifications.map(notif => (<div key={notif.id} className={`p-4 hover:bg-slate-50 border-b cursor-pointer ${!notif.read ? 'bg-indigo-50' : ''}`} onClick={() => onMarkRead(notif.id)}><div className="flex items-start gap-3"><div className={`p-1.5 rounded-full ${notif.type === 'lead' ? 'bg-emerald-100' : notif.type === 'alert' ? 'bg-amber-100' : 'bg-indigo-100'}`}>{notif.type === 'lead' ? <UserPlus size={12} className="text-emerald-600" /> : notif.type === 'alert' ? <AlertCircle size={12} className="text-amber-600" /> : <Calendar size={12} className="text-indigo-600" />}</div><div className="flex-1"><p className="text-sm">{notif.message}</p><p className="text-xs text-slate-500 mt-1">{notif.time}</p></div>{!notif.read && <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>}</div></div>))}</div></div>);
+
+// ==================== PAGES ====================
+
+const Dashboard = ({ onToast, onSelectLead }) => (
+  <div className="space-y-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      <KpiCard title="New Leads Today" value="23" change="+12% vs yesterday" icon={Users} color="bg-indigo-500" />
+      <KpiCard title="Appointments Set" value="18" change="67% show rate" icon={Calendar} color="bg-emerald-500" />
+      <KpiCard title="Deals Closed MTD" value="47" change="$324,500 gross" icon={Target} color="bg-amber-500" />
+      <KpiCard title="Avg Response Time" value="4.2 min" change="-18% vs last week" icon={Clock} color="bg-rose-500" />
+    </div>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border"><h3 className="font-semibold mb-4">Lead Volume (Last 30 Days)</h3><ResponsiveContainer width="100%" height={300}><AreaChart data={leadVolumeData}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="day" /><YAxis /><Tooltip /><Area type="monotone" dataKey="leads" stroke="#4F46E5" fill="#4F46E5" fillOpacity={0.1} /><Area type="monotone" dataKey="conversions" stroke="#10B981" fill="#10B981" fillOpacity={0.1} /></AreaChart></ResponsiveContainer></div>
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border"><h3 className="font-semibold mb-4">Lead Sources</h3><ResponsiveContainer width="100%" height={300}><RePieChart><Pie data={leadSourcesData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={5} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>{leadSourcesData.map((entry, idx) => <Cell key={idx} fill={entry.color} />)}</Pie><Tooltip /></RePieChart></ResponsiveContainer></div>
+    </div>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border"><h3 className="font-semibold mb-4">Salesperson Performance</h3><ResponsiveContainer width="100%" height={300}><ReBarChart data={salespersonPerformance}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="name" /><YAxis yAxisId="left" /><YAxis yAxisId="right" orientation="right" /><Tooltip /><Legend /><Bar yAxisId="left" dataKey="units" fill="#4F46E5" name="Units Sold" /><Bar yAxisId="right" dataKey="gross" fill="#10B981" name="Gross ($K)" /></ReBarChart></ResponsiveContainer></div>
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border"><h3 className="font-semibold mb-4 flex items-center justify-between"><span>Hot Leads Feed</span><span className="text-xs text-rose-500 animate-pulse">● Live</span></h3><div className="space-y-3 max-h-[300px] overflow-y-auto">{hotLeads.map(lead => (<div key={lead.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => onSelectLead(lead)}><div className="flex-1"><div className="flex items-center gap-2"><p className="font-medium text-sm">{lead.name}</p><StatusBadge status={lead.status} /></div><p className="text-xs text-slate-500 mt-1">{lead.vehicle}</p><p className="text-xs text-slate-400 mt-1">{lead.lastActivity}</p></div><div className="flex gap-2"><button onClick={(e) => { e.stopPropagation(); onToast(`Calling ${lead.name}...`, "info"); }} className="p-2 bg-emerald-100 rounded-lg"><Phone size={14} className="text-emerald-600" /></button><button onClick={(e) => { e.stopPropagation(); onToast(`Texting ${lead.name}...`, "info"); }} className="p-2 bg-indigo-100 rounded-lg"><MessageSquare size={14} className="text-indigo-600" /></button></div></div>))}</div></div>
+    </div>
+  </div>
+);
+
+const LeadsPage = ({ onToast, onSelectLead }) => {
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const filteredLeads = leadsData.filter(lead => { if (filterStatus !== "all" && lead.status !== filterStatus) return false; if (search && !lead.name.toLowerCase().includes(search.toLowerCase())) return false; return true; });
+  return (<div className="space-y-5"><div className="flex flex-wrap gap-3 items-center justify-between"><div className="flex gap-2"><select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border rounded-lg text-sm"><option value="all">All Status</option><option value="Hot">Hot</option><option value="Warm">Warm</option><option value="Cold">Cold</option></select><input type="text" placeholder="Search leads..." value={search} onChange={(e) => setSearch(e.target.value)} className="px-3 py-2 border rounded-lg text-sm w-64" /></div><button className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2"><Filter size={16} /> Filter</button></div><div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border overflow-hidden"><div className="overflow-x-auto"><table className="w-full"><thead className="bg-slate-50"><tr className="text-left text-xs font-medium text-slate-500 uppercase"><th className="px-4 py-3">Score</th><th className="px-4 py-3">Customer</th><th className="px-4 py-3">Contact</th><th className="px-4 py-3">Vehicle</th><th className="px-4 py-3">Source</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Rep</th><th className="px-4 py-3">Activity</th><th className="px-4 py-3">Actions</th></tr></thead><tbody className="divide-y">{filteredLeads.map(lead => (<tr key={lead.id} className="hover:bg-slate-50 cursor-pointer" onClick={() => onSelectLead(lead)}><td className="px-4 py-3"><span className={`inline-flex px-2 py-0.5 rounded-full text-xs ${lead.score >= 80 ? 'bg-rose-100 text-rose-700' : lead.score >= 60 ? 'bg-amber-100 text-amber-700' : 'bg-slate-100'}`}>{lead.score}</span></td><td className="px-4 py-3 font-medium text-sm">{lead.name}</td><td className="px-4 py-3"><div className="flex gap-1"><a href={`tel:${lead.phone}`} onClick={(e) => e.stopPropagation()} className="p-1 hover:bg-slate-100 rounded"><Phone size={14} /></a><a href={`mailto:${lead.email}`} onClick={(e) => e.stopPropagation()} className="p-1 hover:bg-slate-100 rounded"><Mail size={14} /></a></div></td><td className="px-4 py-3 text-sm">{lead.vehicle.split(' ').slice(0,2).join(' ')}</td><td className="px-4 py-3 text-sm">{lead.source}</td><td className="px-4 py-3"><StatusBadge status={lead.status} /></td><td className="px-4 py-3 text-sm">{lead.rep.split(' ')[0]}</td><td className="px-4 py-3 text-sm text-slate-500">{lead.lastActivity}</td><td className="px-4 py-3"><div className="flex gap-1"><button onClick={(e) => { e.stopPropagation(); onToast(`Calling ${lead.name}`, "info"); }} className="p-1.5 hover:bg-slate-100 rounded"><PhoneCall size={14} /></button><button onClick={(e) => { e.stopPropagation(); onToast(`Texting ${lead.name}`, "info"); }} className="p-1.5 hover:bg-slate-100 rounded"><MessageSquare size={14} /></button></div></td></tr>))}</tbody></table></div></div></div>);
+};
+
+const InventoryPage = ({ onToast }) => (<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">{inventoryData.map(vehicle => (<div key={vehicle.id} className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border overflow-hidden hover:shadow-md transition-all cursor-pointer"><div className="h-32 bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-lg font-bold relative">{vehicle.make} {vehicle.model}<div className={`absolute top-2 right-2 w-2 h-2 rounded-full ${vehicle.status === "Available" ? "bg-emerald-400 animate-pulse" : "bg-slate-400"}`}></div></div><div className="p-4"><div className="flex justify-between items-start mb-2"><div><h3 className="font-semibold">{vehicle.year} {vehicle.make} {vehicle.model}</h3><p className="text-xs text-slate-500">Stock #{vehicle.stock}</p></div><StatusBadge status={vehicle.status} /></div><div className="flex justify-between items-center mb-3"><p className="text-xl font-bold text-indigo-600">${vehicle.price.toLocaleString()}</p><div className="flex gap-2 text-xs"><span className="px-2 py-1 bg-slate-100 rounded">👁️ {vehicle.views}</span><span className="px-2 py-1 bg-emerald-100 rounded">📞 {vehicle.inquiries}</span></div></div><div className="flex gap-2"><button onClick={() => onToast(`Matching leads for ${vehicle.model}`, "success")} className="flex-1 py-2 bg-indigo-50 text-indigo-600 rounded-lg text-sm">Match to Lead</button><button className="flex-1 py-2 bg-slate-100 rounded-lg text-sm">Details</button></div></div></div>))}</div>);
+
+const ServicePage = ({ onToast }) => {
+  const [appointments, setAppointments] = useState(serviceAppointments);
+  const updateStatus = (id, newStatus) => { setAppointments(appointments.map(apt => apt.id === id ? { ...apt, status: newStatus } : apt)); onToast(`Status updated to ${newStatus}`, "success"); };
+  return (<div className="space-y-5"><div className="grid grid-cols-4 gap-4"><div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center border"><p className="text-2xl font-bold">{appointments.length}</p><p className="text-sm text-slate-500">Total ROs</p></div><div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center border"><p className="text-2xl font-bold text-indigo-600">{appointments.filter(a => a.status === "In Progress").length}</p><p className="text-sm text-slate-500">In Progress</p></div><div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center border"><p className="text-2xl font-bold text-amber-600">{appointments.filter(a => a.status === "Waiting").length}</p><p className="text-sm text-slate-500">Waiting</p></div><div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center border"><p className="text-2xl font-bold text-emerald-600">{appointments.filter(a => a.status === "Completed").length}</p><p className="text-sm text-slate-500">Completed</p></div></div><div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border overflow-hidden"><div className="divide-y">{appointments.map(apt => (<div key={apt.id} className="flex items-center justify-between p-4 hover:bg-slate-50"><div className="flex items-center gap-4"><div className="w-20"><p className="font-bold text-indigo-600">{apt.time}</p></div><div><p className="font-medium">{apt.customer}</p><p className="text-sm text-slate-500">{apt.vehicle}</p></div></div><div className="flex-1 px-4"><p className="text-sm">{apt.service}</p><p className="text-xs text-slate-500">Advisor: {apt.advisor}</p></div><select value={apt.status} onChange={(e) => updateStatus(apt.id, e.target.value)} className="px-2 py-1 text-sm border rounded"><option>Scheduled</option><option>Waiting</option><option>In Progress</option><option>Completed</option></select></div>))}</div></div></div>);
+};
+
+const AnalyticsPage = ({ onToast }) => {
+  const totalUnits = salespeople.reduce((sum, r) => sum + r.units, 0);
+  return (<div className="space-y-6"><div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border"><div className="flex justify-between items-center mb-4"><h3 className="font-semibold">Sales Leaderboard</h3><button onClick={() => onToast("Report exported", "success")} className="flex items-center gap-2 text-indigo-600 text-sm"><Download size={14} /> Export</button></div><div className="space-y-3">{[...salespeople].sort((a,b) => b.units - a.units).map((rep, idx) => (<div key={rep.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"><div className="flex items-center gap-3"><div className={`w-10 h-10 rounded-full ${rep.color} flex items-center justify-center text-white text-xs font-bold`}>{rep.initials}</div><div><p className="font-medium text-sm">{rep.name}</p><p className="text-xs text-slate-500">{rep.units} units · ${(rep.gross/1000).toFixed(0)}K gross</p></div></div><div className="text-right"><p className="font-medium text-emerald-600">{rep.closeRate}%</p><p className="text-xs text-slate-500">close rate</p></div></div>))}</div></div><div className="grid grid-cols-1 lg:grid-cols-2 gap-6"><div className="bg-white dark:bg-slate-800 rounded-xl p-5 border"><h3 className="font-semibold mb-4">Lost Deal Reasons</h3><ResponsiveContainer width="100%" height={250}><RePieChart><Pie data={lostDealReasons} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>{lostDealReasons.map((entry, idx) => <Cell key={idx} fill={entry.color} />)}</Pie><Tooltip /></RePieChart></ResponsiveContainer></div><div className="bg-white dark:bg-slate-800 rounded-xl p-5 border"><h3 className="font-semibold mb-4">Response Time Heatmap</h3><div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr><th className="p-2"></th><th className="p-2">Mon</th><th className="p-2">Tue</th><th className="p-2">Wed</th><th className="p-2">Thu</th><th className="p-2">Fri</th></tr></thead><tbody>{responseTimeHeatmap.map(row => (<tr key={row.hour}><td className="p-2 font-medium">{row.hour}</td>{["Mon","Tue","Wed","Thu","Fri"].map(day => { const val = row[day]; return <td key={day} className="p-2"><div className={`px-2 py-1 rounded text-center text-white ${val > 5 ? 'bg-rose-500' : val > 4 ? 'bg-amber-500' : 'bg-emerald-500'}`}>{val}m</div></td>; })}</tr>))}</tbody></table></div></div></div><div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-6 text-white"><p className="text-sm font-medium mb-2">📊 Forecast</p><p className="text-lg">On pace for {Math.round(totalUnits * 1.15)} units this month. Need {Math.max(0, 87 - totalUnits)} more to hit goal.</p><button className="mt-3 px-4 py-2 bg-white/20 rounded-lg text-sm font-medium hover:bg-white/30">View Recommendations</button></div></div>);
+};
+
+const SettingsPage = ({ onToast }) => {
+  const [notifications, setNotifications] = useState(true);
+  const [autoAssign, setAutoAssign] = useState(true);
+  return (<div className="space-y-6"><div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border"><h3 className="font-semibold mb-4 flex items-center gap-2"><Users size={18} /> User Management</h3><div className="space-y-3">{salespeople.map(user => (<div key={user.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg"><div className="flex items-center gap-3"><div className={`w-10 h-10 rounded-full ${user.color} flex items-center justify-center text-white font-bold`}>{user.initials}</div><div><p className="font-medium">{user.name}</p><p className="text-xs text-slate-500">Sales Consultant</p></div></div><div className="flex gap-2"><button onClick={() => onToast(`Editing ${user.name}`, "info")} className="px-3 py-1 text-indigo-600 text-sm">Edit</button><button onClick={() => onToast(`Removing ${user.name}`, "error")} className="px-3 py-1 text-rose-600 text-sm">Remove</button></div></div>))}</div></div><div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border"><h3 className="font-semibold mb-4 flex items-center gap-2"><Settings size={18} /> Preferences</h3><div className="space-y-3"><div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg"><div><p className="font-medium">Email Notifications</p><p className="text-xs text-slate-500">Receive alerts for new leads</p></div><button onClick={() => { setNotifications(!notifications); onToast(`Notifications ${!notifications ? 'enabled' : 'disabled'}`, "success"); }} className={`px-4 py-2 rounded-lg text-sm ${notifications ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200'}`}>{notifications ? 'Enabled' : 'Disabled'}</button></div><div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg"><div><p className="font-medium">Auto-assign Leads</p><p className="text-xs text-slate-500">Auto-assign new leads to reps</p></div><button onClick={() => { setAutoAssign(!autoAssign); onToast(`Auto-assign ${!autoAssign ? 'enabled' : 'disabled'}`, "success"); }} className={`px-4 py-2 rounded-lg text-sm ${autoAssign ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200'}`}>{autoAssign ? 'Enabled' : 'Disabled'}</button></div></div></div></div>);
+};
+
+const CampaignsPage = ({ onToast }) => (<div className="space-y-5"><div className="flex justify-between items-center"><h2 className="text-xl font-semibold">Campaigns</h2><button onClick={() => onToast("New campaign created", "success")} className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm">+ New Campaign</button></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">{campaignsData.map(campaign => (<div key={campaign.id} className="bg-white dark:bg-slate-800 rounded-xl p-5 border hover:shadow-md transition-all"><div className="flex justify-between items-start mb-3"><div><h3 className="font-semibold">{campaign.name}</h3><p className="text-xs text-slate-500">{campaign.type} Campaign</p></div><StatusBadge status="active" /></div><div className="grid grid-cols-3 gap-2 text-center mb-3"><div><p className="text-lg font-bold">{campaign.sent.toLocaleString()}</p><p className="text-xs text-slate-500">Sent</p></div><div><p className="text-lg font-bold">{campaign.openRate}%</p><p className="text-xs text-slate-500">Open</p></div><div><p className="text-lg font-bold">${(campaign.revenue/1000).toFixed(0)}K</p><p className="text-xs text-slate-500">Revenue</p></div></div><button className="w-full py-2 text-indigo-600 text-sm font-medium hover:bg-indigo-50 rounded-lg">View Details</button></div>))}</div></div>);
+
+const OpportunitiesPage = ({ onToast }) => {
+  const totalValue = salespeople.reduce((sum, r) => sum + r.gross, 0);
+  return (<div className="space-y-6"><div className="grid grid-cols-3 gap-4"><div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center border"><p className="text-2xl font-bold text-indigo-600">${(totalValue/1000).toFixed(0)}K</p><p className="text-sm text-slate-500">Pipeline Value</p></div><div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center border"><p className="text-2xl font-bold text-emerald-600">{salespeople.reduce((sum, r) => sum + r.units, 0)}</p><p className="text-sm text-slate-500">Total Deals</p></div><div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center border"><p className="text-2xl font-bold text-amber-600">67%</p><p className="text-sm text-slate-500">Win Rate</p></div></div><div className="bg-white dark:bg-slate-800 rounded-xl p-6 border"><h3 className="font-semibold mb-4">Top Opportunities</h3><div className="space-y-3">{leadsData.filter(l => l.status === "Hot").slice(0,5).map((lead, idx) => (<div key={lead.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"><div className="flex items-center gap-3"><div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">#{idx+1}</div><div><p className="font-medium">{lead.name}</p><p className="text-xs text-slate-500">{lead.vehicle}</p></div></div><div className="text-right"><p className="font-bold text-indigo-600">${lead.budget.toLocaleString()}</p><p className="text-xs text-slate-500">{lead.status}</p></div></div>))}</div></div></div>);
+};
+
+// ==================== MAIN APP ====================
+const App = () => {
+  const [darkMode, setDarkMode] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [currentPage, setCurrentPage] = useState("dashboard");
+  const [selectedLead, setSelectedLead] = useState(null);
+  const [toasts, setToasts] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showAiAssistant, setShowAiAssistant] = useState(false);
+  const [notifications, setNotifications] = useState(notificationsData);
+  
+  useEffect(() => { if (darkMode) document.documentElement.classList.add('dark'); else document.documentElement.classList.remove('dark'); }, [darkMode]);
+  
+  const addToast = (message, type = "success") => { const id = Date.now(); setToasts(prev => [...prev, { id, message, type }]); };
+  const removeToast = (id) => setToasts(prev => prev.filter(t => t.id !== id));
+  const markNotificationRead = (id) => { setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n)); };
+  
+  const navigation = [
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, section: "SALES" },
+    { id: "leads", label: "Leads", icon: Users, section: "SALES" },
+    { id: "opportunities", label: "Opportunities", icon: Target, section: "SALES" },
+    { id: "campaigns", label: "Campaigns", icon: Send, section: "MARKETING" },
+    { id: "inventory", label: "Inventory", icon: Car, section: "INVENTORY" },
+    { id: "service", label: "Service", icon: Wrench, section: "SERVICE" },
+    { id: "analytics", label: "Analytics", icon: BarChart3, section: "ANALYTICS" },
+    { id: "settings", label: "Settings", icon: Settings, section: "SETTINGS" },
+  ];
+  
+  const renderPage = () => {
+    switch (currentPage) {
+      case "dashboard": return <Dashboard onToast={addToast} onSelectLead={setSelectedLead} />;
+      case "leads": return <LeadsPage onToast={addToast} onSelectLead={setSelectedLead} />;
+      case "opportunities": return <OpportunitiesPage onToast={addToast} />;
+      case "campaigns": return <CampaignsPage onToast={addToast} />;
+      case "inventory": return <InventoryPage onToast={addToast} />;
+      case "service": return <ServicePage onToast={addToast} />;
+      case "analytics": return <AnalyticsPage onToast={addToast} />;
+      case "settings": return <SettingsPage onToast={addToast} />;
+      default: return <Dashboard onToast={addToast} onSelectLead={setSelectedLead} />;
+    }
+  };
+  
+  return (
+    <div className="flex h-screen bg-slate-50 dark:bg-slate-900">
+      <aside className={`${sidebarCollapsed ? 'w-20' : 'w-64'} bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 transition-all duration-300 flex flex-col`}>
+        <div className="p-5 border-b flex items-center justify-between">
+          {!sidebarCollapsed && <div><span className="text-xl font-bold bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">AutoDeal CRM</span><p className="text-xs text-slate-500">Enterprise Suite</p></div>}
+          <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)} className="p-1.5 hover:bg-slate-100 rounded-lg"><ChevronLeft size={18} className={sidebarCollapsed ? "rotate-180" : ""} /></button>
+        </div>
+        <nav className="flex-1 p-3 space-y-6 overflow-y-auto">
+          {["SALES", "MARKETING", "INVENTORY", "SERVICE", "ANALYTICS", "SETTINGS"].map(section => {
+            const sectionItems = navigation.filter(item => item.section === section);
+            if (sectionItems.length === 0) return null;
+            return (<div key={section}>{!sidebarCollapsed && <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 px-3">{section}</p>}<div className="space-y-1">{sectionItems.map(item => (<button key={item.id} onClick={() => setCurrentPage(item.id)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${currentPage === item.id ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-100'}`}><item.icon size={20} />{!sidebarCollapsed && <span className="text-sm font-medium">{item.label}</span>}</button>))}</div></div>);
+          })}
+        </nav>
+      </aside>
+      
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <header className="bg-white dark:bg-slate-800 border-b px-6 py-3 flex items-center justify-between">
+          <h1 className="text-lg font-semibold">{navigation.find(n => n.id === currentPage)?.label || "Dashboard"}</h1>
+          <div className="flex items-center gap-4">
+            <GlobalSearch onSelect={(result) => { if (result.type === "lead") setSelectedLead(result); else addToast(`Selected ${result.make} ${result.model}`, "info"); }} />
+            <button onClick={() => setDarkMode(!darkMode)} className="p-2 hover:bg-slate-100 rounded-lg">{darkMode ? <Sun size={18} /> : <Moon size={18} />}</button>
+            <div className="relative"><button onClick={() => { setShowNotifications(!showNotifications); setShowAiAssistant(false); }} className="p-2 hover:bg-slate-100 rounded-lg relative"><Bell size={18} /><span className="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full"></span></button>{showNotifications && <NotificationCenter notifications={notifications} onClose={() => setShowNotifications(false)} onMarkRead={markNotificationRead} />}</div>
+            <button onClick={() => { setShowAiAssistant(!showAiAssistant); setShowNotifications(false); }} className="p-2 hover:bg-slate-100 rounded-lg"><Bot size={18} /></button>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold">AD</div>
+          </div>
+        </header>
+        <main className="flex-1 overflow-y-auto p-6">{renderPage()}</main>
+      </div>
+      
+      {selectedLead && <LeadDrawer lead={selectedLead} onClose={() => setSelectedLead(null)} onAction={(action, lead) => addToast(`${action} action for ${lead.name}`, "success")} />}
+      {showAiAssistant && <AiAssistant onClose={() => setShowAiAssistant(false)} onSendMessage={(msg) => addToast(`AI: ${msg.substring(0, 50)}...`, "info")} />}
+      <QuickAddFab onAction={(action) => addToast(`${action} action triggered`, "success")} />
+      {toasts.map(toast => <Toast key={toast.id} message={toast.message} type={toast.type} onClose={() => removeToast(toast.id)} />)}
+    </div>
+  );
+};
+
+export default App;

@@ -11,7 +11,7 @@ import {
   Briefcase, ClipboardList, FolderOpen, Gift, Headphones,
   HelpCircle, LogOut, Menu, Minimize2, Maximize2, MessageCircle,
   Paperclip, Save, Share2, ShoppingBag, Smartphone,
-  Tag, Timer, Trash, Truck, Video,  Wallet, Watch,
+  Tag, Timer, Trash, Truck, Video, Volume2, Wallet, Watch,
   Wind, ZoomIn, ZoomOut, Navigation, Compass, MapPin,
   Crown, Medal, Globe, Lock, Unlock, Award as AwardIcon,
   TrendingUp as TrendingUpIcon, Clock as ClockIcon,
@@ -63,7 +63,7 @@ import {
   Unlink, Unlock as UnlockIcon, Unplug, Usb, User as UserIcon,
   UserCheck as UserCheckIcon, UserMinus, UserPlus as UserPlusIcon, UserX,
   Users as UsersIcon2, VenetianMask, Verified, Vibrate, Video as VideoIcon,
-  VideoOff, View, Voicemail, Volume1,  VolumeX, Vote, Wallet as WalletIcon,
+  VideoOff, View, Voicemail, Volume1, Volume2, VolumeX, Vote, Wallet as WalletIcon,
   Wallpaper, Wand, Warehouse, Watch as WatchIcon, Waves, Webcam, Weight,
   Wheat, Wifi as WifiIcon, Wind as WindIcon, Wine, Wrench as WrenchIcon,
   X as XIcon, Youtube, Zap as ZapIcon, Zigzag, Zipper
