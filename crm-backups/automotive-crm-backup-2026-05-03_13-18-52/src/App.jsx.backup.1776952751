@@ -1,0 +1,1028 @@
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  LayoutDashboard, Users, Car, Wrench, BarChart3,
+  Settings, ChevronLeft, Search, Bell, Sun, Moon,
+  Plus, Phone, Mail, Calendar, MessageSquare, X, UserPlus,
+  PhoneCall, FileText, Clock, TrendingUp, TrendingDown, Target,
+  AlertCircle, Info, Check, Send, Bot, Loader2, Sparkles,
+  Filter, Activity, Trophy, DollarSign, Grid, Calendar as CalendarIcon,
+  Star, Award, Eye, Edit, Trash2, Download, RefreshCw,
+  Zap, Shield, Home, Percent, PieChart, LineChart, UserCheck,
+  Briefcase, ClipboardList, FolderOpen, Gift, Headphones,
+  HelpCircle, LogOut, Menu, Minimize2, Maximize2, MessageCircle,
+  Paperclip, Save, Share2, ShoppingBag, Smartphone,
+  Tag, Timer, Trash, Truck, Video, Volume2, Wallet, Watch,
+  Wind, ZoomIn, ZoomOut, Navigation, Compass, MapPin,
+  Crown, Medal, Globe, Lock, Unlock, Award as AwardIcon,
+  TrendingUp as TrendingUpIcon, Clock as ClockIcon,
+  XCircle, CheckCircle, AlertTriangle, Users as UsersIcon,
+  PlusCircle, MinusCircle, ArrowUp, ArrowDown, MoreVertical,
+  ChevronDown, ChevronUp, Copy, ExternalLink, Link, Printer,
+  RefreshCcw, RotateCcw, Settings as SettingsIcon, Sliders
+} from 'lucide-react';
+import {
+  AreaChart, Area, BarChart as ReBarChart, Bar,
+  PieChart as RePieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  ComposedChart
+} from 'recharts';
+
+// ==================== ENHANCED MOCK DATA ====================
+const salespeople = [
+  { id: 1, name: "Sarah Chen", initials: "SC", leads: 47, appts: 32, units: 18, gross: 124500, closeRate: 38.3, color: "bg-indigo-500", email: "sarah.chen@autodeal.com", phone: "(555) 111-2222", rank: 2, target: 20, achievement: 90, deals: 18, revenue: 1245000 },
+  { id: 2, name: "Mike Rodriguez", initials: "MR", leads: 52, appts: 41, units: 24, gross: 187200, closeRate: 46.2, color: "bg-emerald-500", email: "mike.rodriguez@autodeal.com", phone: "(555) 222-3333", rank: 1, target: 25, achievement: 96, deals: 24, revenue: 1872000 },
+  { id: 3, name: "Jessica Williams", initials: "JW", leads: 38, appts: 28, units: 15, gross: 98300, closeRate: 39.5, color: "bg-amber-500", email: "jessica.williams@autodeal.com", phone: "(555) 333-4444", rank: 4, target: 18, achievement: 83, deals: 15, revenue: 983000 },
+  { id: 4, name: "David Kim", initials: "DK", leads: 44, appts: 35, units: 21, gross: 156700, closeRate: 47.7, color: "bg-rose-500", email: "david.kim@autodeal.com", phone: "(555) 444-5555", rank: 3, target: 22, achievement: 95, deals: 21, revenue: 1567000 },
+  { id: 5, name: "Lisa Thompson", initials: "LT", leads: 41, appts: 29, units: 17, gross: 112400, closeRate: 41.5, color: "bg-cyan-500", email: "lisa.thompson@autodeal.com", phone: "(555) 555-6666", rank: 5, target: 19, achievement: 89, deals: 17, revenue: 1124000 },
+  { id: 6, name: "James Wilson", initials: "JW", leads: 35, appts: 22, units: 12, gross: 87600, closeRate: 34.3, color: "bg-purple-500", email: "james.wilson@autodeal.com", phone: "(555) 666-7777", rank: 6, target: 15, achievement: 80, deals: 12, revenue: 876000 },
+];
+
+const leadsData = [
+  { id: 1, score: 92, name: "Thomas Bennett", phone: "(555) 123-4567", email: "thomas.b@email.com", vehicle: "2024 Ford F-150 Lariat", source: "AutoTrader", status: "Hot", rep: "Sarah Chen", lastActivity: "5m ago", daysInStage: 1, websiteVisits: 5, emailsOpened: 3, tradeInSubmitted: true, budget: 65000, interest: "Truck", timeline: [
+    { type: "call", message: "Initial call - interested in F-150", time: "2024-01-15 10:30 AM" },
+    { type: "email", message: "Sent quote for F-150 Lariat", time: "2024-01-16 2:00 PM" },
+    { type: "note", message: "Customer visited website 5 times", time: "2024-01-17 9:00 AM" }
+  ]},
+  { id: 2, score: 78, name: "Amanda Foster", phone: "(555) 234-5678", email: "amanda.f@email.com", vehicle: "2023 Tesla Model Y", source: "Website", status: "Warm", rep: "Mike Rodriguez", lastActivity: "2h ago", daysInStage: 3, websiteVisits: 3, emailsOpened: 2, tradeInSubmitted: false, budget: 55000, interest: "SUV", timeline: [
+    { type: "email", message: "Sent Model Y information", time: "2024-01-14 11:00 AM" },
+    { type: "note", message: "Interested in financing options", time: "2024-01-15 3:30 PM" }
+  ]},
+  { id: 3, score: 45, name: "Marcus Webb", phone: "(555) 345-6789", email: "marcus.w@email.com", vehicle: "2022 BMW X5", source: "Cars.com", status: "Cold", rep: "Jessica Williams", lastActivity: "1d ago", daysInStage: 7, websiteVisits: 1, emailsOpened: 0, tradeInSubmitted: false, budget: 48000, interest: "Luxury SUV", timeline: [] },
+  { id: 4, score: 88, name: "Rachel Cohen", phone: "(555) 456-7890", email: "rachel.c@email.com", vehicle: "2024 Mercedes-Benz GLE", source: "Facebook", status: "Hot", rep: "David Kim", lastActivity: "15m ago", daysInStage: 2, websiteVisits: 4, emailsOpened: 4, tradeInSubmitted: true, budget: 75000, interest: "Luxury", timeline: [
+    { type: "call", message: "Discussed GLE features", time: "2024-01-16 1:00 PM" },
+    { type: "email", message: "Sent trade-in evaluation", time: "2024-01-17 10:00 AM" }
+  ]},
+  { id: 5, score: 65, name: "Kevin Zhang", phone: "(555) 567-8901", email: "kevin.z@email.com", vehicle: "2023 Toyota Tundra", source: "Phone", status: "Warm", rep: "Sarah Chen", lastActivity: "1h ago", daysInStage: 4, websiteVisits: 2, emailsOpened: 1, tradeInSubmitted: false, budget: 58000, interest: "Truck", timeline: [] },
+  { id: 6, score: 35, name: "Danielle Russo", phone: "(555) 678-9012", email: "danielle.r@email.com", vehicle: "2024 Honda CR-V", source: "Walk-in", status: "Cold", rep: "Lisa Thompson", lastActivity: "3d ago", daysInStage: 10, websiteVisits: 0, emailsOpened: 0, tradeInSubmitted: false, budget: 35000, interest: "SUV", timeline: [] },
+  { id: 7, score: 95, name: "Brandon Hayes", phone: "(555) 789-0123", email: "brandon.h@email.com", vehicle: "2024 Chevrolet Corvette", source: "AutoTrader", status: "Hot", rep: "Mike Rodriguez", lastActivity: "2m ago", daysInStage: 0, websiteVisits: 6, emailsOpened: 5, tradeInSubmitted: true, budget: 85000, interest: "Sports Car", timeline: [
+    { type: "call", message: "Very excited about Corvette", time: "2024-01-17 11:00 AM" },
+    { type: "note", message: "Ready for test drive", time: "2024-01-17 11:30 AM" }
+  ]},
+  { id: 8, score: 72, name: "Olivia Martinez", phone: "(555) 890-1234", email: "olivia.m@email.com", vehicle: "2023 Lexus RX", source: "Website", status: "Warm", rep: "James Wilson", lastActivity: "3h ago", daysInStage: 3, websiteVisits: 3, emailsOpened: 2, tradeInSubmitted: false, budget: 52000, interest: "Luxury SUV", timeline: [] },
+  { id: 9, score: 82, name: "Nathan Brooks", phone: "(555) 901-2345", email: "nathan.b@email.com", vehicle: "2024 Audi Q8", source: "Cars.com", status: "Hot", rep: "David Kim", lastActivity: "30m ago", daysInStage: 1, websiteVisits: 4, emailsOpened: 3, tradeInSubmitted: true, budget: 72000, interest: "Luxury", timeline: [] },
+  { id: 10, score: 58, name: "Sophia Lee", phone: "(555) 012-3456", email: "sophia.l@email.com", vehicle: "2023 Volvo XC90", source: "Facebook", status: "Warm", rep: "Jessica Williams", lastActivity: "5h ago", daysInStage: 5, websiteVisits: 2, emailsOpened: 1, tradeInSubmitted: false, budget: 62000, interest: "SUV", timeline: [] },
+  { id: 11, score: 91, name: "Eric Thompson", phone: "(555) 123-8901", email: "eric.t@email.com", vehicle: "2024 Ram 1500", source: "AutoTrader", status: "Hot", rep: "Sarah Chen", lastActivity: "10m ago", daysInStage: 1, websiteVisits: 4, emailsOpened: 3, tradeInSubmitted: true, budget: 68000, interest: "Truck", timeline: [] },
+  { id: 12, score: 67, name: "Michelle Park", phone: "(555) 234-9012", email: "michelle.p@email.com", vehicle: "2023 Porsche Cayenne", source: "Website", status: "Warm", rep: "Mike Rodriguez", lastActivity: "45m ago", daysInStage: 2, websiteVisits: 3, emailsOpened: 2, tradeInSubmitted: false, budget: 82000, interest: "Luxury SUV", timeline: [] },
+  { id: 13, score: 42, name: "Derek Morgan", phone: "(555) 345-0123", email: "derek.m@email.com", vehicle: "2022 Jeep Wrangler", source: "Cars.com", status: "Cold", rep: "Jessica Williams", lastActivity: "2d ago", daysInStage: 8, websiteVisits: 1, emailsOpened: 0, tradeInSubmitted: false, budget: 45000, interest: "SUV", timeline: [] },
+  { id: 14, score: 86, name: "Vanessa White", phone: "(555) 456-1234", email: "vanessa.w@email.com", vehicle: "2024 BMW 7 Series", source: "Facebook", status: "Hot", rep: "David Kim", lastActivity: "20m ago", daysInStage: 1, websiteVisits: 5, emailsOpened: 4, tradeInSubmitted: true, budget: 95000, interest: "Luxury", timeline: [] },
+  { id: 15, score: 71, name: "William Garcia", phone: "(555) 567-2345", email: "william.g@email.com", vehicle: "2023 Ford Mustang", source: "Phone", status: "Warm", rep: "Lisa Thompson", lastActivity: "2h ago", daysInStage: 3, websiteVisits: 2, emailsOpened: 2, tradeInSubmitted: false, budget: 48000, interest: "Sports Car", timeline: [] },
+];
+
+const inventoryData = [
+  { id: 1, year: 2024, make: "Ford", model: "F-150", trim: "Lariat", stock: "F24001", vin: "1FTFW1E85PKE12345", price: 58995, cost: 51200, daysOnLot: 12, status: "Available", type: "New", engine: "3.5L EcoBoost V6", color: "Oxford White", mpg: 22, features: ["Leather", "Sunroof", "Tow Package", "360 Camera", "Heated Seats"], views: 245, inquiries: 12, recon: { arrived: true, inspected: true, recon: true, detail: false, photos: false, ready: false } },
+  { id: 2, year: 2023, make: "Tesla", model: "Model Y", trim: "Long Range", stock: "T23002", vin: "5YJYGDEE9PF123456", price: 49990, cost: 46700, daysOnLot: 28, status: "Available", type: "Used", engine: "Dual Motor", color: "Midnight Silver", mpg: "Electric", features: ["Autopilot", "Premium Sound", "Glass Roof", "Heated Seats", "Tow Hitch"], views: 189, inquiries: 8, recon: { arrived: true, inspected: true, recon: true, detail: true, photos: false, ready: false } },
+  { id: 3, year: 2022, make: "BMW", model: "X5", trim: "xDrive40i", stock: "B22003", vin: "5UXCR6C09N9J12345", price: 55995, cost: 52100, daysOnLot: 45, status: "Pending", type: "Used", engine: "3.0L I6 Turbo", color: "Mineral White", mpg: 23, features: ["M Sport", "Harmon Kardon", "Panoramic Roof", "Ventilated Seats", "Laser Lights"], views: 156, inquiries: 5, recon: { arrived: true, inspected: true, recon: true, detail: true, photos: true, ready: true } },
+  { id: 4, year: 2024, make: "Mercedes", model: "GLE", trim: "450 4MATIC", stock: "M24004", vin: "4JGFB4KBXRA123456", price: 72995, cost: 67800, daysOnLot: 8, status: "Available", type: "New", engine: "3.0L I6 Turbo", color: "Obsidian Black", mpg: 21, features: ["AMG Line", "Burmester", "Air Suspension", "MBUX", "Rear Seat Entertainment"], views: 312, inquiries: 18, recon: { arrived: true, inspected: true, recon: true, detail: true, photos: true, ready: true } },
+  { id: 5, year: 2023, make: "Toyota", model: "Tundra", trim: "1794", stock: "T23005", vin: "5TFLA5DB9PX123456", price: 62995, cost: 58400, daysOnLot: 62, status: "In Recon", type: "Used", engine: "3.5L V6 Hybrid", color: "Smoked Mesquite", mpg: 18, features: ["Leather", "JBL Sound", "Multi-Info Display", "Panoramic Roof", "Power Steps"], views: 98, inquiries: 3, recon: { arrived: true, inspected: true, recon: false, detail: false, photos: false, ready: false } },
+  { id: 6, year: 2024, make: "Honda", model: "CR-V", trim: "Sport Touring", stock: "H24006", vin: "2HKRW2H93RH123456", price: 36995, cost: 34100, daysOnLot: 5, status: "Available", type: "New", engine: "1.5L Turbo", color: "Radiant Red", mpg: 34, features: ["Bose Audio", "Wireless Charging", "Hands-Free Liftgate", "Honda Sensing", "Parking Sensors"], views: 267, inquiries: 15, recon: { arrived: true, inspected: true, recon: true, detail: true, photos: true, ready: true } },
+  { id: 7, year: 2024, make: "Chevrolet", model: "Corvette", trim: "Stingray", stock: "C24007", vin: "1G1YB3D43R5123456", price: 84995, cost: 78900, daysOnLot: 3, status: "Sold", type: "New", engine: "6.2L V8", color: "Torch Red", mpg: 19, features: ["Z51 Package", "Performance Exhaust", "Front Lift", "GT2 Seats", "Carbon Fiber"], views: 423, inquiries: 28, recon: { arrived: true, inspected: true, recon: true, detail: true, photos: true, ready: true } },
+  { id: 8, year: 2023, make: "Lexus", model: "RX", trim: "350 F Sport", stock: "L23008", vin: "2T2BZMCA3PC123456", price: 54995, cost: 51200, daysOnLot: 34, status: "Available", type: "Used", engine: "3.5L V6", color: "Ultra White", mpg: 24, features: ["Mark Levinson", "Heads-up Display", "Panoramic View", "Wireless Charging", " heated Steering Wheel"], views: 198, inquiries: 9, recon: { arrived: true, inspected: true, recon: true, detail: true, photos: true, ready: true } },
+];
+
+const serviceAppointments = [
+  { id: 1, time: "8:00 AM", customer: "Robert Johnson", vehicle: "2021 Honda Accord", service: "Oil Change", status: "In Progress", advisor: "Tom Brady", phone: "(555) 111-2222", duration: 60 },
+  { id: 2, time: "9:30 AM", customer: "Emily Davis", vehicle: "2022 Toyota Camry", service: "Brake Inspection", status: "Waiting", advisor: "Sarah Lee", phone: "(555) 222-3333", duration: 45 },
+  { id: 3, time: "10:15 AM", customer: "Michael Brown", vehicle: "2020 Ford Explorer", service: "Transmission Flush", status: "Scheduled", advisor: "Tom Brady", phone: "(555) 333-4444", duration: 90 },
+  { id: 4, time: "11:00 AM", customer: "Jessica Miller", vehicle: "2023 Tesla Model 3", service: "Tire Rotation", status: "Scheduled", advisor: "Sarah Lee", phone: "(555) 444-5555", duration: 30 },
+  { id: 5, time: "1:00 PM", customer: "Daniel Wilson", vehicle: "2019 BMW X3", service: "Engine Diagnostic", status: "Scheduled", advisor: "Tom Brady", phone: "(555) 555-6666", duration: 120 },
+  { id: 6, time: "2:30 PM", customer: "Ashley Moore", vehicle: "2022 Mercedes C300", service: "Oil Change", status: "Scheduled", advisor: "Sarah Lee", phone: "(555) 666-7777", duration: 45 },
+  { id: 7, time: "3:45 PM", customer: "Christopher Taylor", vehicle: "2021 Audi Q5", service: "Brake Pads", status: "Scheduled", advisor: "Tom Brady", phone: "(555) 777-8888", duration: 75 },
+  { id: 8, time: "9:00 AM", customer: "Patricia Clark", vehicle: "2020 Jeep Grand Cherokee", service: "Oil Change", status: "Completed", advisor: "Sarah Lee", phone: "(555) 888-9999", duration: 45 },
+  { id: 9, time: "11:30 AM", customer: "Thomas Wright", vehicle: "2022 Ford Mustang", service: "Tire Replacement", status: "With Tech", advisor: "Tom Brady", phone: "(555) 999-0000", duration: 60 },
+  { id: 10, time: "4:00 PM", customer: "Jennifer Lopez", vehicle: "2023 Tesla Model S", service: "Alignment", status: "Ready", advisor: "Sarah Lee", phone: "(555) 000-1111", duration: 60 },
+];
+
+const leadVolumeData = Array.from({ length: 30 }, (_, i) => ({
+  day: i + 1,
+  leads: Math.floor(Math.random() * 25) + 8,
+  conversions: Math.floor(Math.random() * 8) + 2,
+}));
+
+const leadSourcesData = [
+  { name: "Website", value: 38, color: "#4F46E5", costPerLead: 12, costPerSale: 145 },
+  { name: "AutoTrader", value: 24, color: "#10B981", costPerLead: 18, costPerSale: 210 },
+  { name: "Cars.com", value: 18, color: "#F59E0B", costPerLead: 15, costPerSale: 185 },
+  { name: "Facebook", value: 12, color: "#F43F5E", costPerLead: 8, costPerSale: 98 },
+  { name: "Phone", value: 5, color: "#8B5CF6", costPerLead: 5, costPerSale: 75 },
+  { name: "Walk-in", value: 3, color: "#06B6D4", costPerLead: 2, costPerSale: 45 },
+];
+
+const salespersonPerformance = salespeople.map(sp => ({
+  name: sp.name.split(' ')[0],
+  units: sp.units,
+  gross: sp.gross / 1000,
+}));
+
+const hotLeads = leadsData.filter(l => l.status === "Hot").slice(0, 8);
+const recentActivities = [
+  { id: 1, type: "call", user: "Sarah Chen", action: "called", target: "Thomas Bennett", time: "5 min ago", outcome: "Left voicemail" },
+  { id: 2, type: "email", user: "Mike Rodriguez", action: "sent email to", target: "Amanda Foster", time: "15 min ago", outcome: "Opened" },
+  { id: 3, type: "appointment", user: "David Kim", action: "set appointment with", target: "Rachel Cohen", time: "1 hour ago", outcome: "Confirmed" },
+  { id: 4, type: "deal", user: "Jessica Williams", action: "closed deal with", target: "Marcus Webb", time: "2 hours ago", outcome: "Sold BMW X5" },
+  { id: 5, type: "note", user: "Lisa Thompson", action: "added note for", target: "Kevin Zhang", time: "3 hours ago", outcome: "Interested in financing" },
+];
+
+const monthlyGoals = [
+  { month: "Jan", target: 15, actual: 14 },
+  { month: "Feb", target: 15, actual: 16 },
+  { month: "Mar", target: 18, actual: 17 },
+  { month: "Apr", target: 20, actual: 22 },
+  { month: "May", target: 22, actual: 21 },
+  { month: "Jun", target: 25, actual: 24 },
+];
+
+const lostDealReasons = [
+  { name: "Price", value: 35, color: "#F43F5E" },
+  { name: "Financing", value: 25, color: "#F59E0B" },
+  { name: "Competitor", value: 20, color: "#8B5CF6" },
+  { name: "Timing", value: 12, color: "#06B6D4" },
+  { name: "Vehicle", value: 8, color: "#10B981" },
+];
+
+const responseTimeHeatmap = [
+  { hour: "8am", Mon: 4.2, Tue: 3.8, Wed: 4.1, Thu: 3.9, Fri: 4.5 },
+  { hour: "10am", Mon: 3.5, Tue: 3.2, Wed: 3.4, Thu: 3.3, Fri: 3.8 },
+  { hour: "12pm", Mon: 5.2, Tue: 4.9, Wed: 5.1, Thu: 4.8, Fri: 5.5 },
+  { hour: "2pm", Mon: 4.8, Tue: 4.5, Wed: 4.7, Thu: 4.6, Fri: 5.1 },
+  { hour: "4pm", Mon: 6.2, Tue: 5.9, Wed: 6.1, Thu: 5.8, Fri: 6.5 },
+];
+
+const notificationsData = [
+  { id: 1, type: "lead", message: "New lead from AutoTrader - Thomas Bennett", time: "2 min ago", read: false },
+  { id: 2, type: "alert", message: "Overdue follow-up: 3 leads with no contact in 48 hours", time: "15 min ago", read: false },
+  { id: 3, type: "reminder", message: "Appointment with Sarah Johnson in 30 minutes", time: "30 min ago", read: false },
+  { id: 4, type: "lead", message: "New trade-in request from Rachel Cohen", time: "1 hour ago", read: true },
+  { id: 5, type: "alert", message: "Inventory alert: Ford F-150 on lot for 45 days", time: "2 hours ago", read: true },
+];
+
+// ==================== COMPONENTS ====================
+
+const StatusBadge = ({ status }) => {
+  const config = {
+    Hot: "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400",
+    Warm: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+    Cold: "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300",
+    Available: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+    Sold: "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300",
+    Pending: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400",
+    "In Recon": "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+    "In Progress": "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400",
+    Waiting: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+    Scheduled: "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300",
+    Completed: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+    "With Tech": "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
+    Ready: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+    Delivered: "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300",
+  };
+  return <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${config[status] || "bg-slate-100"}`}>{status}</span>;
+};
+
+const KpiCard = ({ title, value, change, icon: Icon, color }) => (
+  <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all cursor-pointer group">
+    <div className="flex justify-between items-start">
+      <div>
+        <p className="text-sm text-slate-500 dark:text-slate-400">{title}</p>
+        <p className="text-2xl font-bold mt-1">{value}</p>
+        {change && (
+          <div className={`flex items-center gap-1 mt-2 text-xs ${change.startsWith('+') ? 'text-emerald-600' : 'text-rose-600'}`}>
+            {change.startsWith('+') ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+            <span>{change}</span>
+          </div>
+        )}
+      </div>
+      <div className={`p-3 rounded-lg ${color} group-hover:scale-110 transition-transform`}>
+        <Icon size={20} className="text-white" />
+      </div>
+    </div>
+  </div>
+);
+
+const Toast = ({ message, type, onClose }) => {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 4000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+  
+  const icons = { success: <Check size={16} />, error: <AlertCircle size={16} />, info: <Info size={16} /> };
+  const colors = { success: "bg-emerald-500", error: "bg-rose-500", info: "bg-indigo-500" };
+  
+  return (
+    <div className={`fixed bottom-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg text-white ${colors[type]} animate-fade-in`}>
+      {icons[type]}
+      <span className="text-sm">{message}</span>
+    </div>
+  );
+};
+
+const QuickAddFab = ({ onAction }) => {
+  const [open, setOpen] = useState(false);
+  
+  const actions = [
+    { icon: <UserPlus size={16} />, label: "Add Lead", color: "bg-indigo-500", action: "lead" },
+    { icon: <PhoneCall size={16} />, label: "Log Call", color: "bg-emerald-500", action: "call" },
+    { icon: <Calendar size={16} />, label: "Set Appointment", color: "bg-amber-500", action: "appointment" },
+    { icon: <FileText size={16} />, label: "Add Note", color: "bg-purple-500", action: "note" },
+  ];
+  
+  return (
+    <div className="fixed bottom-6 right-6 z-40">
+      {open && (
+        <div className="absolute bottom-16 right-0 space-y-2 animate-fade-in">
+          {actions.map((action, idx) => (
+            <button
+              key={idx}
+              onClick={() => { onAction(action.action); setOpen(false); }}
+              className={`flex items-center gap-2 px-4 py-2 ${action.color} text-white rounded-full shadow-lg hover:opacity-90 transition-all text-sm whitespace-nowrap`}
+            >
+              {action.icon}
+              {action.label}
+            </button>
+          ))}
+        </div>
+      )}
+      <button
+        onClick={() => setOpen(!open)}
+        className={`w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all ${open ? 'bg-slate-600 rotate-45' : 'bg-indigo-500 hover:bg-indigo-600'} text-white`}
+      >
+        <Plus size={24} />
+      </button>
+    </div>
+  );
+};
+
+const NotificationCenter = ({ notifications, onClose, onMarkRead }) => (
+  <div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 z-50 overflow-hidden">
+    <div className="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-700">
+      <h3 className="font-semibold">Notifications</h3>
+      <button onClick={onClose} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded"><X size={16} /></button>
+    </div>
+    <div className="max-h-96 overflow-y-auto">
+      {notifications.map(notif => (
+        <div key={notif.id} className={`p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-100 dark:border-slate-700 cursor-pointer ${!notif.read ? 'bg-indigo-50 dark:bg-indigo-900/20' : ''}`} onClick={() => onMarkRead(notif.id)}>
+          <div className="flex items-start gap-3">
+            <div className={`p-1.5 rounded-full ${notif.type === 'lead' ? 'bg-emerald-100' : notif.type === 'alert' ? 'bg-amber-100' : 'bg-indigo-100'}`}>
+              {notif.type === 'lead' && <UserPlus size={12} className="text-emerald-600" />}
+              {notif.type === 'alert' && <AlertCircle size={12} className="text-amber-600" />}
+              {notif.type === 'reminder' && <Calendar size={12} className="text-indigo-600" />}
+            </div>
+            <div className="flex-1">
+              <p className="text-sm">{notif.message}</p>
+              <p className="text-xs text-slate-500 mt-1">{notif.time}</p>
+            </div>
+            {!notif.read && <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const AiAssistant = ({ onClose, onSendMessage }) => {
+  const [messages, setMessages] = useState([
+    { role: "assistant", content: "Hello! I'm your AI sales assistant. Ask me about leads, inventory, or performance metrics." }
+  ]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  
+  const handleSend = () => {
+    if (!input.trim()) return;
+    const userMsg = { role: "user", content: input };
+    setMessages(prev => [...prev, userMsg]);
+    setInput("");
+    setLoading(true);
+    
+    setTimeout(() => {
+      let response = "";
+      const lowerInput = input.toLowerCase();
+      if (lowerInput.includes("hot lead")) {
+        response = "Your hottest leads are Thomas Bennett (92 score) and Brandon Hayes (95 score). Both have multiple site visits. I recommend calling within the hour.";
+      } else if (lowerInput.includes("close rate")) {
+        response = "Current close rate is 41.2% MTD. David Kim leads with 47.7%, followed by Mike Rodriguez at 46.2%.";
+      } else if (lowerInput.includes("inventory")) {
+        response = "You have 8 vehicles. The Ford F-150 has 12 inquiries this week. The BMW X5 has been on lot for 45 days - consider promotion.";
+      } else {
+        response = "Based on your data, focus on the 5 hot leads that haven't been contacted today. Your Facebook lead source has the best ROI at 1500%.";
+      }
+      setMessages(prev => [...prev, { role: "assistant", content: response }]);
+      setLoading(false);
+      onSendMessage(input);
+    }, 1000);
+  };
+  
+  return (
+    <div className="fixed inset-y-0 right-0 w-96 bg-white dark:bg-slate-800 shadow-2xl z-50 flex flex-col border-l border-slate-200 dark:border-slate-700">
+      <div className="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-700">
+        <div className="flex items-center gap-2">
+          <Bot size={20} className="text-indigo-500" />
+          <h3 className="font-semibold">AI Assistant</h3>
+        </div>
+        <button onClick={onClose} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded"><X size={18} /></button>
+      </div>
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        {messages.map((msg, idx) => (
+          <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div className={`max-w-[85%] p-3 rounded-xl ${msg.role === 'user' ? 'bg-indigo-500 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100'}`}>
+              <p className="text-sm">{msg.content}</p>
+            </div>
+          </div>
+        ))}
+        {loading && (
+          <div className="flex justify-start">
+            <div className="bg-slate-100 dark:bg-slate-700 p-3 rounded-xl">
+              <Loader2 size={16} className="animate-spin" />
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="p-4 border-t border-slate-200 dark:border-slate-700">
+        <div className="flex gap-2">
+          <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleSend()} placeholder="Ask me anything..." className="flex-1 px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-900 text-sm" />
+          <button onClick={handleSend} className="p-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors"><Send size={16} /></button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const GlobalSearch = ({ onSelect }) => {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [showResults, setShowResults] = useState(false);
+  const searchRef = useRef(null);
+  
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) setShowResults(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+  
+  useEffect(() => {
+    if (query.length > 1) {
+      const matchedLeads = leadsData.filter(l => l.name.toLowerCase().includes(query.toLowerCase()) || l.vehicle.toLowerCase().includes(query.toLowerCase())).slice(0, 5);
+      const matchedVehicles = inventoryData.filter(v => `${v.year} ${v.make} ${v.model}`.toLowerCase().includes(query.toLowerCase())).slice(0, 5);
+      setResults([...matchedLeads.map(l => ({ type: "lead", ...l })), ...matchedVehicles.map(v => ({ type: "vehicle", ...v }))]);
+      setShowResults(true);
+    } else {
+      setResults([]);
+      setShowResults(false);
+    }
+  }, [query]);
+  
+  return (
+    <div className="relative" ref={searchRef}>
+      <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+      <input type="text" placeholder="Search customers, vehicles..." value={query} onChange={(e) => setQuery(e.target.value)} className="pl-9 pr-4 py-1.5 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 w-80 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+      {showResults && results.length > 0 && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 z-50 max-h-96 overflow-y-auto">
+          {results.map(result => (
+            <button key={result.id} onClick={() => { onSelect(result); setQuery(""); setShowResults(false); }} className="w-full text-left px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors border-b border-slate-100 last:border-0">
+              <div className="flex items-center gap-3">
+                {result.type === "lead" ? <Users size={14} className="text-indigo-500" /> : <Car size={14} className="text-emerald-500" />}
+                <div><p className="text-sm font-medium">{result.type === "lead" ? result.name : `${result.year} ${result.make} ${result.model}`}</p><p className="text-xs text-slate-500">{result.type === "lead" ? result.vehicle : `Stock #${result.stock}`}</p></div>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const LeadDrawer = ({ lead, onClose, onAction }) => {
+  if (!lead) return null;
+  
+  const getTimelineIcon = (type) => {
+    switch(type) {
+      case "call": return <Phone size={12} className="text-emerald-500" />;
+      case "email": return <Mail size={12} className="text-indigo-500" />;
+      case "note": return <FileText size={12} className="text-amber-500" />;
+      default: return <Activity size={12} className="text-slate-500" />;
+    }
+  };
+  
+  return (
+    <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white dark:bg-slate-800 shadow-2xl z-50 transform transition-transform border-l border-slate-200 dark:border-slate-700" style={{ animation: 'slide-in 0.3s ease-out' }}>
+      <div className="flex flex-col h-full">
+        <div className="flex justify-between items-center p-5 border-b border-slate-200 dark:border-slate-700">
+          <h2 className="text-xl font-semibold">Lead Details</h2>
+          <button onClick={onClose} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"><X size={20} /></button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-5 space-y-5">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xl font-bold">
+              {lead.name.split(' ').map(n => n[0]).join('')}
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold">{lead.name}</h3>
+              <div className="flex items-center gap-2 mt-1">
+                <StatusBadge status={lead.status} />
+                <span className="text-sm text-slate-500">Score: {lead.score}/100</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            <h4 className="font-medium text-sm text-slate-500 uppercase">Contact Info</h4>
+            <div className="flex items-center gap-2 text-sm"><Phone size={16} className="text-slate-400" /><a href={`tel:${lead.phone}`} className="hover:text-indigo-600">{lead.phone}</a></div>
+            <div className="flex items-center gap-2 text-sm"><Mail size={16} className="text-slate-400" /><a href={`mailto:${lead.email}`} className="hover:text-indigo-600">{lead.email}</a></div>
+          </div>
+          
+          <div className="space-y-3">
+            <h4 className="font-medium text-sm text-slate-500 uppercase">Vehicle Interest</h4>
+            <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3">
+              <p className="font-medium">{lead.vehicle}</p>
+              <p className="text-sm text-slate-500 mt-1">Budget: ${lead.budget.toLocaleString()}</p>
+              <p className="text-sm text-slate-500">Interest: {lead.interest}</p>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            <h4 className="font-medium text-sm text-slate-500 uppercase">Lead Score Explanation</h4>
+            <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-3">
+              <p className="text-sm">Scored {lead.score}/100 — visited site {lead.websiteVisits}x, opened {lead.emailsOpened} emails, {lead.tradeInSubmitted ? "submitted a trade-in form" : "no trade-in yet"}</p>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            <h4 className="font-medium text-sm text-slate-500 uppercase">Interaction Timeline</h4>
+            <div className="space-y-2">
+              {lead.timeline && lead.timeline.length > 0 ? lead.timeline.map((item, idx) => (
+                <div key={idx} className="flex items-start gap-2 p-2 bg-slate-50 dark:bg-slate-700/30 rounded-lg">
+                  {getTimelineIcon(item.type)}
+                  <div className="flex-1"><p className="text-xs">{item.message}</p><p className="text-xs text-slate-400">{item.time}</p></div>
+                </div>
+              )) : <p className="text-sm text-slate-500 text-center py-2">No activity yet</p>}
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            <h4 className="font-medium text-sm text-slate-500 uppercase">AI Suggested Next Action</h4>
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg p-3 text-white">
+              <div className="flex items-center gap-2 mb-2"><Sparkles size={16} /><span className="font-medium">AI Assistant</span></div>
+              <p className="text-sm">Based on {lead.websiteVisits} site visits and {lead.emailsOpened} opened emails, this customer is ready for a payment quote. Send now?</p>
+              <button className="mt-3 px-4 py-2 bg-white/20 rounded-lg text-sm font-medium hover:bg-white/30">Send Quote</button>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            <h4 className="font-medium text-sm text-slate-500 uppercase">Quick Actions</h4>
+            <div className="grid grid-cols-2 gap-2">
+              <button onClick={() => onAction("Call", lead)} className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-sm"><Phone size={14} /> Call</button>
+              <button onClick={() => onAction("Text", lead)} className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-sm"><MessageSquare size={14} /> Text</button>
+              <button onClick={() => onAction("Email", lead)} className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-sm"><Mail size={14} /> Email</button>
+              <button onClick={() => onAction("Appointment", lead)} className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-sm"><Calendar size={14} /> Set Appt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ==================== LEAD DETAIL DRAWER COMPONENT ====================
+
+// ==================== DASHBOARD PAGE ====================
+const Dashboard = ({ onToast, onSelectLead }) => (
+  <div className="space-y-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      <KpiCard title="New Leads Today" value="23" change="+12% vs yesterday" icon={Users} color="bg-indigo-500" />
+      <KpiCard title="Appointments Set" value="18" change="67% show rate" icon={Calendar} color="bg-emerald-500" />
+      <KpiCard title="Deals Closed MTD" value="47" change="$324,500 gross" icon={Target} color="bg-amber-500" />
+      <KpiCard title="Avg Response Time" value="4.2 min" change="-18% vs last week" icon={Clock} color="bg-rose-500" />
+    </div>
+    
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-slate-200">
+        <h3 className="font-semibold mb-4">Lead Volume (Last 30 Days)</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <AreaChart data={leadVolumeData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="day" />
+            <YAxis />
+            <Tooltip />
+            <Area type="monotone" dataKey="leads" stroke="#4F46E5" fill="#4F46E5" fillOpacity={0.1} />
+            <Area type="monotone" dataKey="conversions" stroke="#10B981" fill="#10B981" fillOpacity={0.1} />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+      
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-slate-200">
+        <h3 className="font-semibold mb-4">Lead Sources</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <RePieChart>
+            <Pie data={leadSourcesData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={5} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+              {leadSourcesData.map((entry, idx) => <Cell key={idx} fill={entry.color} />)}
+            </Pie>
+            <Tooltip />
+          </RePieChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+    
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-slate-200">
+        <h3 className="font-semibold mb-4">Salesperson Performance</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <ReBarChart data={salespersonPerformance}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis yAxisId="left" />
+            <YAxis yAxisId="right" orientation="right" />
+            <Tooltip />
+            <Legend />
+            <Bar yAxisId="left" dataKey="units" fill="#4F46E5" name="Units Sold" />
+            <Bar yAxisId="right" dataKey="gross" fill="#10B981" name="Gross ($K)" />
+          </ReBarChart>
+        </ResponsiveContainer>
+      </div>
+      
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-slate-200">
+        <h3 className="font-semibold mb-4 flex items-center justify-between">
+          <span>Hot Leads Feed</span>
+          <span className="text-xs text-rose-500 animate-pulse">● Live</span>
+        </h3>
+        <div className="space-y-3 max-h-[300px] overflow-y-auto">
+          {hotLeads.map(lead => (
+            <div key={lead.id} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => onSelectLead(lead)}>
+              <div className="flex-1">
+                <div className="flex items-center gap-2"><p className="font-medium text-sm">{lead.name}</p><StatusBadge status={lead.status} /></div>
+                <p className="text-xs text-slate-500 mt-1">{lead.vehicle}</p>
+                <p className="text-xs text-slate-400 mt-1">{lead.lastActivity}</p>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={(e) => { e.stopPropagation(); onToast(`Calling ${lead.name}...`, "info"); }} className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg"><Phone size={14} className="text-emerald-600" /></button>
+                <button onClick={(e) => { e.stopPropagation(); onToast(`Texting ${lead.name}...`, "info"); }} className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg"><MessageSquare size={14} className="text-indigo-600" /></button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// ==================== LEADS PAGE ====================
+const LeadsPage = ({ onToast, onSelectLead }) => {
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterSource, setFilterSource] = useState("all");
+  const [filterRep, setFilterRep] = useState("all");
+  
+  const filteredLeads = leadsData.filter(lead => {
+    if (filterStatus !== "all" && lead.status !== filterStatus) return false;
+    if (filterSource !== "all" && lead.source !== filterSource) return false;
+    if (filterRep !== "all" && lead.rep !== filterRep) return false;
+    if (search && !lead.name.toLowerCase().includes(search.toLowerCase()) && !lead.vehicle.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
+  
+  const uniqueSources = [...new Set(leadsData.map(l => l.source))];
+  const uniqueReps = [...new Set(leadsData.map(l => l.rep))];
+  
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-wrap gap-3 items-center justify-between">
+        <div className="flex flex-wrap gap-2">
+          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-sm">
+            <option value="all">All Status</option><option value="Hot">Hot</option><option value="Warm">Warm</option><option value="Cold">Cold</option>
+          </select>
+          <select value={filterSource} onChange={(e) => setFilterSource(e.target.value)} className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-sm">
+            <option value="all">All Sources</option>{uniqueSources.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+          <select value={filterRep} onChange={(e) => setFilterRep(e.target.value)} className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-sm">
+            <option value="all">All Reps</option>{uniqueReps.map(r => <option key={r} value={r}>{r}</option>)}
+          </select>
+          <input type="text" placeholder="Search leads..." value={search} onChange={(e) => setSearch(e.target.value)} className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-sm w-64" />
+        </div>
+        <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2"><Filter size={16} /> Filter</button>
+      </div>
+      
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-slate-50 dark:bg-slate-700/50">
+              <tr className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                <th className="px-4 py-3">Score</th><th className="px-4 py-3">Customer</th><th className="px-4 py-3">Contact</th><th className="px-4 py-3">Vehicle</th><th className="px-4 py-3">Source</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Rep</th><th className="px-4 py-3">Last Activity</th><th className="px-4 py-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+              {filteredLeads.map(lead => (
+                <tr key={lead.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 cursor-pointer transition-colors group" onClick={() => onSelectLead(lead)}>
+                  <td className="px-4 py-3">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                      lead.score >= 80 ? 'bg-rose-100 text-rose-700' : 
+                      lead.score >= 60 ? 'bg-amber-100 text-amber-700' : 
+                      'bg-slate-100 text-slate-700'
+                    }`}>{lead.score}</span>
+                  </td>
+                  <td className="px-4 py-3 font-medium text-sm">{lead.name}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-1">
+                      <a href={`tel:${lead.phone}`} onClick={(e) => e.stopPropagation()} className="p-1 hover:bg-slate-100 rounded"><Phone size={14} className="text-slate-400" /></a>
+                      <a href={`mailto:${lead.email}`} onClick={(e) => e.stopPropagation()} className="p-1 hover:bg-slate-100 rounded"><Mail size={14} className="text-slate-400" /></a>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-sm">{lead.vehicle.split(' ').slice(0,3).join(' ')}</td>
+                  <td className="px-4 py-3 text-sm">{lead.source}</td>
+                  <td className="px-4 py-3"><StatusBadge status={lead.status} /></td>
+                  <td className="px-4 py-3 text-sm">{lead.rep.split(' ')[0]}</td>
+                  <td className="px-4 py-3 text-sm text-slate-500">{lead.lastActivity}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-1">
+                      <button onClick={(e) => { e.stopPropagation(); onToast(`Logging call for ${lead.name}`, "success"); }} className="p-1 hover:bg-slate-100 rounded"><PhoneCall size={14} /></button>
+                      <button onClick={(e) => { e.stopPropagation(); onToast(`Sending text to ${lead.name}`, "success"); }} className="p-1 hover:bg-slate-100 rounded"><MessageSquare size={14} /></button>
+                      <button onClick={(e) => { e.stopPropagation(); onToast(`Setting appointment for ${lead.name}`, "success"); }} className="p-1 hover:bg-slate-100 rounded"><Calendar size={14} /></button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ==================== PIPELINE KANBAN PAGE ====================
+const PipelinePage = ({ onToast }) => {
+  const [viewMode, setViewMode] = useState("kanban");
+  const stages = ["New Lead", "Contacted", "Appointment Set", "Appointment Showed", "Demo/Test Drive", "Negotiating", "Sold", "Lost"];
+  
+  const getLeadsByStage = (stage) => {
+    if (stage === "New Lead") return leadsData.filter(l => l.daysInStage <= 2);
+    if (stage === "Contacted") return leadsData.filter(l => l.daysInStage > 2 && l.daysInStage <= 5);
+    if (stage === "Appointment Set") return leadsData.filter(l => l.score > 80);
+    if (stage === "Appointment Showed") return leadsData.filter(l => l.score > 70 && l.score <= 80);
+    if (stage === "Demo/Test Drive") return leadsData.filter(l => l.websiteVisits > 3);
+    if (stage === "Negotiating") return leadsData.filter(l => l.tradeInSubmitted);
+    if (stage === "Sold") return leadsData.filter(l => l.id === 7);
+    if (stage === "Lost") return leadsData.filter(l => l.id === 3);
+    return [];
+  };
+  
+  if (viewMode === "list") {
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-between items-center"><h2 className="text-xl font-semibold">Pipeline List View</h2><button onClick={() => setViewMode("kanban")} className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm">Switch to Kanban</button></div>
+        {stages.map(stage => {
+          const leads = getLeadsByStage(stage);
+          return leads.length > 0 && (
+            <div key={stage} className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 overflow-hidden">
+              <div className="bg-slate-50 dark:bg-slate-700/50 px-4 py-2 font-medium text-sm">{stage} ({leads.length})</div>
+              <div className="divide-y">{leads.map(lead => (<div key={lead.id} className="px-4 py-2 text-sm flex justify-between items-center"><span>{lead.name} - {lead.vehicle.split(' ').slice(0,2).join(' ')}</span><span className="text-slate-500 text-xs">{lead.daysInStage} days</span></div>))}</div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+  
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center"><h2 className="text-xl font-semibold">Sales Pipeline</h2><button onClick={() => setViewMode("list")} className="px-4 py-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-sm">Switch to List View</button></div>
+      <div className="flex gap-4 overflow-x-auto pb-4">
+        {stages.map(stage => {
+          const leads = getLeadsByStage(stage);
+          return (
+            <div key={stage} className="min-w-[280px] bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3">
+              <div className="flex justify-between items-center mb-3 px-2"><h3 className="font-medium text-sm">{stage}</h3><span className="text-xs text-slate-500">{leads.length}</span></div>
+              <div className="space-y-2">
+                {leads.map(lead => (
+                  <div key={lead.id} className="bg-white dark:bg-slate-800 rounded-lg p-3 shadow-sm border border-slate-200 dark:border-slate-700 cursor-move hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start"><p className="font-medium text-sm">{lead.name}</p><div className="w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-xs font-medium">{lead.rep.split(' ').map(n => n[0]).join('')}</div></div>
+                    <p className="text-xs text-slate-500 mt-1">{lead.vehicle.split(' ').slice(0,3).join(' ')}</p>
+                    <div className="flex justify-between items-center mt-2"><span className="text-xs text-slate-400">{lead.daysInStage} days</span><button onClick={() => onToast(`Contacting ${lead.name}`, "info")} className="text-xs text-indigo-500">Contact</button></div>
+                    <div className={`mt-2 w-1 h-1 rounded-full ${lead.score >= 80 ? 'bg-rose-500' : lead.score >= 60 ? 'bg-amber-500' : 'bg-slate-400'} animate-pulse`}></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// ==================== INVENTORY PAGE ====================
+const InventoryPage = ({ onToast }) => {
+  const [filterType, setFilterType] = useState("all");
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  
+  const filteredInventory = inventoryData.filter(v => filterType === "all" || v.type === filterType);
+  
+  const reconSteps = ["Arrived", "Inspected", "Recon", "Detail", "Photos", "Front Line Ready"];
+  
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-wrap gap-3 items-center justify-between">
+        <div className="flex gap-2">
+          <div className="flex bg-slate-100 dark:bg-slate-700 rounded-lg p-1">
+            {["all", "New", "Used"].map(type => (
+              <button key={type} onClick={() => setFilterType(type.toLowerCase())} className={`px-4 py-1.5 text-sm rounded-md transition-colors ${filterType === type.toLowerCase() ? 'bg-white dark:bg-slate-600 shadow-sm' : ''}`}>{type === "all" ? "All" : type}</button>
+            ))}
+          </div>
+          <select className="px-3 py-2 border rounded-lg text-sm bg-white dark:bg-slate-800"><option>All Makes</option><option>Ford</option><option>Tesla</option><option>BMW</option><option>Mercedes</option></select>
+          <input type="range" min="0" max="100" className="w-32" />
+        </div>
+        <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm">+ Add Vehicle</button>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {filteredInventory.map(vehicle => (
+          <div key={vehicle.id} className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden hover:shadow-md transition-all cursor-pointer group" onClick={() => setSelectedVehicle(vehicle)}>
+            <div className="h-32 bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-lg font-bold relative group-hover:scale-105 transition-transform">
+              {vehicle.make} {vehicle.model}
+              <div className={`absolute top-2 right-2 w-2 h-2 rounded-full ${vehicle.status === "Available" ? "bg-emerald-400 animate-pulse" : "bg-slate-400"}`}></div>
+            </div>
+            <div className="p-4">
+              <div className="flex justify-between items-start mb-2">
+                <div><h3 className="font-semibold">{vehicle.year} {vehicle.make} {vehicle.model} {vehicle.trim}</h3><p className="text-xs text-slate-500">Stock #{vehicle.stock} · VIN ...{vehicle.vin.slice(-6)}</p></div>
+                <StatusBadge status={vehicle.status} />
+              </div>
+              <div className="flex justify-between items-center mb-2">
+                <div><p className="text-xl font-bold text-indigo-600">${vehicle.price.toLocaleString()}</p><p className="text-xs text-slate-500 line-through">Cost: ${vehicle.cost.toLocaleString()}</p></div>
+                <div className={`text-sm font-medium ${vehicle.daysOnLot < 30 ? 'text-emerald-600' : vehicle.daysOnLot < 60 ? 'text-amber-600' : 'text-rose-600'}`}>{vehicle.daysOnLot} days</div>
+              </div>
+              <div className="flex gap-2 mt-3">
+                <button onClick={(e) => { e.stopPropagation(); onToast(`Matching leads for ${vehicle.model}`, "success"); }} className="flex-1 py-2 bg-indigo-50 text-indigo-600 rounded-lg text-sm font-medium hover:bg-indigo-100">Match to Lead</button>
+                <button className="flex-1 py-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-sm">Details</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {selectedVehicle && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setSelectedVehicle(null)}>
+          <div className="bg-white dark:bg-slate-800 rounded-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="sticky top-0 bg-white dark:bg-slate-800 p-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+              <h2 className="text-xl font-semibold">{selectedVehicle.year} {selectedVehicle.make} {selectedVehicle.model}</h2>
+              <button onClick={() => setSelectedVehicle(null)} className="p-1 hover:bg-slate-100 rounded-lg"><X size={20} /></button>
+            </div>
+            <div className="p-5 space-y-5">
+              <div className="h-40 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center text-white text-2xl font-bold">{selectedVehicle.make} {selectedVehicle.model}</div>
+              <div className="grid grid-cols-2 gap-4">
+                <div><p className="text-sm text-slate-500">Price</p><p className="text-2xl font-bold text-indigo-600">${selectedVehicle.price.toLocaleString()}</p></div>
+                <div><p className="text-sm text-slate-500">Market Comparison</p><p className="text-emerald-600 text-sm font-medium">$1,200 below market avg</p></div>
+                <div><p className="text-sm text-slate-500">Engine</p><p className="font-medium">{selectedVehicle.engine}</p></div>
+                <div><p className="text-sm text-slate-500">MPG</p><p className="font-medium">{selectedVehicle.mpg}</p></div>
+                <div><p className="text-sm text-slate-500">Color</p><p className="font-medium">{selectedVehicle.color}</p></div>
+                <div><p className="text-sm text-slate-500">VIN</p><p className="font-mono text-sm">{selectedVehicle.vin}</p></div>
+              </div>
+              
+              <div><p className="text-sm text-slate-500 mb-2">Recon Status</p><div className="flex flex-wrap gap-2">{reconSteps.map((step, idx) => (<div key={step} className={`px-2 py-1 rounded-lg text-xs ${selectedVehicle.recon[step.toLowerCase().replace(/ /g, '')] ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>{step} {selectedVehicle.recon[step.toLowerCase().replace(/ /g, '')] && '✓'}</div>))}</div></div>
+              
+              <div><p className="text-sm text-slate-500 mb-2">Features</p><div className="flex flex-wrap gap-2">{selectedVehicle.features.map((f, i) => (<span key={i} className="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded-lg text-xs">{f}</span>))}</div></div>
+              
+              <div className="flex gap-3"><button className="flex-1 bg-indigo-600 text-white py-2 rounded-lg font-medium">Contact Leads</button><button className="flex-1 bg-slate-100 py-2 rounded-lg">Schedule Test Drive</button></div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ==================== SERVICE DRIVE PAGE ====================
+const ServiceDrivePage = ({ onToast }) => {
+  const [appointments, setAppointments] = useState(serviceAppointments);
+  const [filterStatus, setFilterStatus] = useState("all");
+  
+  const filteredAppointments = appointments.filter(apt => filterStatus === "all" || apt.status === filterStatus);
+  
+  const updateStatus = (id, newStatus) => {
+    setAppointments(appointments.map(apt => apt.id === id ? { ...apt, status: newStatus } : apt));
+    onToast(`Status updated to ${newStatus}`, "success");
+  };
+  
+  const timeSlots = ["7:00 AM", "8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM"];
+  const stats = { total: appointments.length, avgCycleTime: "2.4h", csiScore: "4.8", loanersOut: 3 };
+  
+  return (
+    <div className="flex gap-6">
+      <div className="flex-1">
+        <div className="mb-4 flex gap-2">
+          {["all", "Scheduled", "Waiting", "In Progress", "With Tech", "Ready", "Delivered"].map(status => (
+            <button key={status} onClick={() => setFilterStatus(status.toLowerCase())} className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${filterStatus === status.toLowerCase() ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 dark:bg-slate-700'}`}>{status === "all" ? "All" : status}</button>
+          ))}
+        </div>
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="divide-y">
+            {filteredAppointments.map(apt => (
+              <div key={apt.id} className="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors">
+                <div className="flex items-center gap-4 min-w-[200px]"><div className="w-20"><p className="font-bold text-indigo-600">{apt.time}</p></div><div><p className="font-medium">{apt.customer}</p><p className="text-sm text-slate-500">{apt.vehicle}</p></div></div>
+                <div className="flex-1 px-4"><p className="text-sm">{apt.service}</p><p className="text-xs text-slate-500">Advisor: {apt.advisor}</p></div>
+                <div className="flex items-center gap-3">
+                  <StatusBadge status={apt.status} />
+                  <select value={apt.status} onChange={(e) => updateStatus(apt.id, e.target.value)} className="px-2 py-1 text-sm border rounded-lg">
+                    <option>Scheduled</option><option>Waiting</option><option>In Progress</option><option>With Tech</option><option>Ready</option><option>Delivered</option>
+                  </select>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="w-64 space-y-3">
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200"><p className="text-2xl font-bold">{stats.total}</p><p className="text-sm text-slate-500">Total ROs Today</p></div>
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200"><p className="text-2xl font-bold">{stats.avgCycleTime}</p><p className="text-sm text-slate-500">Avg Cycle Time</p></div>
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200"><p className="text-2xl font-bold">{stats.csiScore}</p><p className="text-sm text-slate-500">CSI Score</p></div>
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200"><p className="text-2xl font-bold">{stats.loanersOut}</p><p className="text-sm text-slate-500">Loaner Vehicles</p></div>
+      </div>
+    </div>
+  );
+};
+
+// ==================== ANALYTICS PAGE ====================
+const AnalyticsPage = ({ onToast }) => {
+  const [dateRange, setDateRange] = useState("mtd");
+  const ranges = [{ id: "mtd", label: "MTD" }, { id: "lastMonth", label: "Last Month" }, { id: "last90", label: "Last 90 Days" }, { id: "custom", label: "Custom" }];
+  
+  const totalUnits = salespeople.reduce((sum, r) => sum + r.units, 0);
+  const totalGross = salespeople.reduce((sum, r) => sum + r.gross, 0);
+  
+  return (
+    <div className="space-y-6">
+      <div className="flex gap-2"><div className="flex bg-slate-100 rounded-lg p-1">{ranges.map(range => (<button key={range.id} onClick={() => setDateRange(range.id)} className={`px-4 py-1.5 text-sm rounded-md ${dateRange === range.id ? 'bg-white shadow-sm' : ''}`}>{range.label}</button>))}</div></div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border"><h3 className="font-semibold mb-4">Salesperson Leaderboard</h3><div className="space-y-3">{[...salespeople].sort((a,b) => b.units - a.units).map((rep, idx) => (<div key={rep.id} className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg"><div className="flex items-center gap-3"><div className={`w-8 h-8 rounded-full ${rep.color} flex items-center justify-center text-white text-xs font-bold`}>{rep.initials}</div><div><p className="font-medium text-sm">{rep.name}</p><p className="text-xs text-slate-500">{rep.units} units · ${(rep.gross/1000).toFixed(0)}K gross</p></div></div><div className="text-right"><p className="font-medium text-emerald-600">{rep.closeRate}%</p><p className="text-xs text-slate-500">close rate</p></div></div>))}</div></div>
+        
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border"><h3 className="font-semibold mb-4">Lead Source ROI</h3><ResponsiveContainer width="100%" height={300}><ReBarChart data={leadSourcesData}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="name" /><YAxis /><Tooltip /><Legend /><Bar dataKey="costPerLead" fill="#4F46E5" name="Cost/Lead ($)" /><Bar dataKey="costPerSale" fill="#10B981" name="Cost/Sale ($)" /></ReBarChart></ResponsiveContainer></div>
+      </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border"><h3 className="font-semibold mb-4">Lost Deal Reasons</h3><ResponsiveContainer width="100%" height={250}><RePieChart><Pie data={lostDealReasons} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>{lostDealReasons.map((entry, idx) => <Cell key={idx} fill={entry.color} />)}</Pie><Tooltip /></RePieChart></ResponsiveContainer></div>
+        
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border"><h3 className="font-semibold mb-4">Response Time Heatmap</h3><div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr><th className="p-2"></th><th className="p-2">Mon</th><th className="p-2">Tue</th><th className="p-2">Wed</th><th className="p-2">Thu</th><th className="p-2">Fri</th></tr></thead><tbody>{responseTimeHeatmap.map(row => (<tr key={row.hour}><td className="p-2 font-medium">{row.hour}</td>{["Mon","Tue","Wed","Thu","Fri"].map(day => { const val = row[day]; return <td key={day} className="p-2"><div className={`px-2 py-1 rounded text-center text-white ${val > 5 ? 'bg-rose-500' : val > 4 ? 'bg-amber-500' : 'bg-emerald-500'}`}>{val}m</div></td>; })}</tr>))}</tbody></table></div></div>
+      </div>
+      
+      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-6 text-white"><p className="text-sm font-medium mb-2">📊 Forecast</p><p className="text-lg">On pace for {Math.round(totalUnits * 1.15)} units this month. Need {Math.max(0, 87 - totalUnits)} more to hit goal.</p><button className="mt-3 px-4 py-2 bg-white/20 rounded-lg text-sm font-medium hover:bg-white/30">View Recommendations</button></div>
+    </div>
+  );
+};
+
+// ==================== OPPORTUNITIES PAGE ====================
+const OpportunitiesPage = ({ onToast }) => (
+  <div className="space-y-5">
+    <div className="grid grid-cols-3 gap-4">
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center border"><p className="text-2xl font-bold text-indigo-600">$1.2M</p><p className="text-sm text-slate-500">Pipeline Value</p></div>
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center border"><p className="text-2xl font-bold text-emerald-600">43</p><p className="text-sm text-slate-500">Active Opps</p></div>
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center border"><p className="text-2xl font-bold text-amber-600">67%</p><p className="text-sm text-slate-500">Win Rate</p></div>
+    </div>
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border"><p className="text-center text-slate-500">Opportunity details will appear here</p></div>
+  </div>
+);
+
+// ==================== CAMPAIGNS PAGE ====================
+const CampaignsPage = ({ onToast }) => (
+  <div className="space-y-5">
+    <div className="flex justify-between items-center"><h2 className="text-xl font-semibold">Active Campaigns</h2><button className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm">+ New Campaign</button></div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      {[
+        { name: "Summer Clearance", type: "Email", sent: 2500, openRate: 42, revenue: 125000 },
+        { name: "Labor Day Event", type: "SMS", sent: 1800, openRate: 78, revenue: 189000 },
+        { name: "New Model Launch", type: "Social", sent: 3200, openRate: 35, revenue: 89000 },
+        { name: "Service Special", type: "Email", sent: 4200, openRate: 28, revenue: 45000 },
+        { name: "Trade-in Bonus", type: "Email", sent: 1500, openRate: 55, revenue: 98000 },
+        { name: "Referral Program", type: "SMS", sent: 800, openRate: 82, revenue: 67000 },
+      ].map((campaign, idx) => (
+        <div key={idx} className="bg-white dark:bg-slate-800 rounded-xl p-5 border hover:shadow-md transition-all"><div className="flex justify-between items-start mb-3"><div><h3 className="font-semibold">{campaign.name}</h3><p className="text-xs text-slate-500">{campaign.type} Campaign</p></div><StatusBadge status="active" /></div><div className="grid grid-cols-3 gap-2 text-center mb-3"><div><p className="text-lg font-bold">{campaign.sent.toLocaleString()}</p><p className="text-xs text-slate-500">Sent</p></div><div><p className="text-lg font-bold">{campaign.openRate}%</p><p className="text-xs text-slate-500">Open</p></div><div><p className="text-lg font-bold">${(campaign.revenue/1000).toFixed(0)}K</p><p className="text-xs text-slate-500">Revenue</p></div></div><button className="w-full py-2 text-indigo-600 text-sm font-medium hover:bg-indigo-50 rounded-lg">View Details</button></div>
+      ))}
+    </div>
+  </div>
+);
+
+// ==================== SETTINGS PAGE ====================
+const SettingsPage = ({ onToast }) => {
+  const [notifications, setNotifications] = useState(true);
+  const [autoAssign, setAutoAssign] = useState(true);
+  
+  return (
+    <div className="space-y-6">
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border"><h3 className="font-semibold mb-4 flex items-center gap-2"><Users size={18} /> User Management</h3><div className="space-y-3">{salespeople.map(user => (<div key={user.id} className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-700/30 rounded-lg"><div className="flex items-center gap-3"><div className={`w-10 h-10 rounded-full ${user.color} flex items-center justify-center text-white font-bold`}>{user.initials}</div><div><p className="font-medium">{user.name}</p><p className="text-xs text-slate-500">Sales Consultant</p></div></div><div className="flex gap-2"><button onClick={() => onToast(`Editing ${user.name}`, "info")} className="px-3 py-1 text-indigo-600 text-sm">Edit</button><button onClick={() => onToast(`Removing ${user.name}`, "error")} className="px-3 py-1 text-rose-600 text-sm">Remove</button></div></div>))}</div></div>
+      
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border"><h3 className="font-semibold mb-4 flex items-center gap-2"><Settings size={18} /> Workflow Automations</h3><div className="space-y-3"><div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg"><div><p className="font-medium">Auto-assign leads</p><p className="text-xs text-slate-500">Round-robin assignment to sales reps</p></div><button onClick={() => { setAutoAssign(!autoAssign); onToast(`Auto-assign ${!autoAssign ? 'enabled' : 'disabled'}`, "success"); }} className={`px-4 py-2 rounded-lg text-sm ${autoAssign ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}`}>{autoAssign ? 'Enabled' : 'Disabled'}</button></div><div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg"><div><p className="font-medium">Email Notifications</p><p className="text-xs text-slate-500">Send alerts for new leads and updates</p></div><button onClick={() => { setNotifications(!notifications); onToast(`Notifications ${!notifications ? 'enabled' : 'disabled'}`, "success"); }} className={`px-4 py-2 rounded-lg text-sm ${notifications ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}`}>{notifications ? 'Enabled' : 'Disabled'}</button></div></div></div>
+      
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border"><h3 className="font-semibold mb-4 flex items-center gap-2"><Shield size={18} /> Integrations</h3><div className="grid grid-cols-2 gap-3"><div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg"><span className="text-sm">Email Marketing</span><button onClick={() => onToast("Email Marketing configured", "success")} className="px-3 py-1 bg-indigo-100 text-indigo-600 rounded text-sm">Connect</button></div><div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg"><span className="text-sm">SMS Gateway</span><button onClick={() => onToast("SMS Gateway configured", "success")} className="px-3 py-1 bg-indigo-100 text-indigo-600 rounded text-sm">Connect</button></div><div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg"><span className="text-sm">Calendar Sync</span><button onClick={() => onToast("Calendar Sync configured", "success")} className="px-3 py-1 bg-indigo-100 text-indigo-600 rounded text-sm">Connect</button></div><div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg"><span className="text-sm">CRM Export</span><button onClick={() => onToast("CRM Export configured", "success")} className="px-3 py-1 bg-indigo-100 text-indigo-600 rounded text-sm">Connect</button></div></div></div>
+    </div>
+  );
+};
+
+// ==================== MAIN APP ====================
+const App = () => {
+  const [darkMode, setDarkMode] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [currentPage, setCurrentPage] = useState("dashboard");
+  const [selectedLead, setSelectedLead] = useState(null);
+  const [toasts, setToasts] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showAiAssistant, setShowAiAssistant] = useState(false);
+  const [notifications, setNotifications] = useState(notificationsData);
+  
+  useEffect(() => {
+    if (darkMode) document.documentElement.classList.add('dark');
+    else document.documentElement.classList.remove('dark');
+  }, [darkMode]);
+  
+  const addToast = (message, type = "success") => {
+    const id = Date.now();
+    setToasts(prev => [...prev, { id, message, type }]);
+  };
+  
+  const removeToast = (id) => setToasts(prev => prev.filter(t => t.id !== id));
+  
+  const markNotificationRead = (id) => {
+    setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
+  };
+  
+  const navigation = [
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, section: "SALES" },
+    { id: "leads", label: "Leads", icon: Users, section: "SALES" },
+    { id: "pipeline", label: "Pipeline", icon: Target, section: "SALES" },
+    { id: "opportunities", label: "Opportunities", icon: Briefcase, section: "SALES" },
+    { id: "campaigns", label: "Campaigns", icon: Send, section: "MARKETING" },
+    { id: "inventory", label: "Inventory", icon: Car, section: "INVENTORY" },
+    { id: "service", label: "Service Drive", icon: Wrench, section: "SERVICE" },
+    { id: "analytics", label: "Analytics", icon: BarChart3, section: "ANALYTICS" },
+    { id: "settings", label: "Settings", icon: Settings, section: "SETTINGS" },
+  ];
+  
+  const renderPage = () => {
+    switch (currentPage) {
+      case "dashboard": return <Dashboard onToast={addToast} onSelectLead={setSelectedLead} />;
+      case "leads": return <LeadsPage onToast={addToast} onSelectLead={setSelectedLead} />;
+      case "pipeline": return <PipelinePage onToast={addToast} />;
+      case "opportunities": return <OpportunitiesPage onToast={addToast} />;
+      case "campaigns": return <CampaignsPage onToast={addToast} />;
+      case "inventory": return <InventoryPage onToast={addToast} />;
+      case "service": return <ServiceDrivePage onToast={addToast} />;
+      case "analytics": return <AnalyticsPage onToast={addToast} />;
+      case "settings": return <SettingsPage onToast={addToast} />;
+      default: return <Dashboard onToast={addToast} onSelectLead={setSelectedLead} />;
+    }
+  };
+  
+  return (
+    <div className="flex h-screen bg-slate-50 dark:bg-slate-900">
+      {/* Sidebar */}
+      <aside className={`${sidebarCollapsed ? 'w-20' : 'w-64'} bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 transition-all duration-300 flex flex-col overflow-y-auto`}>
+        <div className="p-5 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between sticky top-0 bg-white dark:bg-slate-800 z-10">
+          {!sidebarCollapsed && <div><span className="text-xl font-bold bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">AutoDeal CRM</span><p className="text-xs text-slate-500">Enterprise Suite v6.0</p></div>}
+          <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"><ChevronLeft size={18} className={sidebarCollapsed ? "rotate-180" : ""} /></button>
+        </div>
+        <nav className="flex-1 p-3 space-y-6">
+          {["SALES", "MARKETING", "SERVICE", "INVENTORY", "ANALYTICS", "SETTINGS"].map(section => {
+            const sectionItems = navigation.filter(item => item.section === section);
+            if (sectionItems.length === 0) return null;
+            return (
+              <div key={section}>
+                {!sidebarCollapsed && <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 px-3">{section}</p>}
+                <div className="space-y-1">
+                  {sectionItems.map(item => (
+                    <button key={item.id} onClick={() => setCurrentPage(item.id)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${currentPage === item.id ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
+                      <item.icon size={20} />
+                      {!sidebarCollapsed && <span className="text-sm font-medium">{item.label}</span>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </nav>
+      </aside>
+      
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-3 flex items-center justify-between sticky top-0 z-10">
+          <h1 className="text-lg font-semibold">{navigation.find(n => n.id === currentPage)?.label || "Dashboard"}</h1>
+          <div className="flex items-center gap-4">
+            <GlobalSearch onSelect={(result) => { if (result.type === "lead") setSelectedLead(result); else addToast(`Selected ${result.make} ${result.model}`, "info"); }} />
+            <button onClick={() => setDarkMode(!darkMode)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg">{darkMode ? <Sun size={18} /> : <Moon size={18} />}</button>
+            <div className="relative">
+              <button onClick={() => { setShowNotifications(!showNotifications); setShowAiAssistant(false); }} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg relative"><Bell size={18} /><span className="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full"></span></button>
+              {showNotifications && <NotificationCenter notifications={notifications} onClose={() => setShowNotifications(false)} onMarkRead={markNotificationRead} />}
+            </div>
+            <button onClick={() => { setShowAiAssistant(!showAiAssistant); setShowNotifications(false); }} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"><Bot size={18} /></button>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold">AD</div>
+          </div>
+        </header>
+        <main className="flex-1 overflow-y-auto p-6">
+          {renderPage()}
+        </main>
+      </div>
+      
+      {/* Global Features */}
+      {selectedLead && <LeadDrawer lead={selectedLead} onClose={() => setSelectedLead(null)} onAction={(action, lead) => addToast(`${action} action for ${lead.name}`, "success")} />}
+      {showAiAssistant && <AiAssistant onClose={() => setShowAiAssistant(false)} onSendMessage={(msg) => addToast(`AI: ${msg.substring(0, 50)}...`, "info")} />}
+      <QuickAddFab onAction={(action) => addToast(`${action} quick action triggered`, "success")} />
+      {toasts.map(toast => <Toast key={toast.id} message={toast.message} type={toast.type} onClose={() => removeToast(toast.id)} />)}
+    </div>
+  );
+};
+
+export default App;

@@ -1,0 +1,537 @@
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  LayoutDashboard, Users, Car, Wrench, BarChart3,
+  Settings, ChevronLeft, Search, Bell, Sun, Moon,
+  Plus, Phone, Mail, Calendar, MessageSquare, X, UserPlus,
+  PhoneCall, FileText, Clock, TrendingUp, TrendingDown, Target,
+  AlertCircle, Info, Check, Send, Bot, Loader2, Sparkles,
+  Filter, Activity, Trophy, DollarSign, Grid, Calendar as CalendarIcon,
+  Star, Award, Eye, Edit, Trash2, Download, RefreshCw,
+  Zap, Shield, Home, Percent, PieChart, LineChart, UserCheck,
+  Briefcase, ClipboardList, FolderOpen, Gift, Headphones,
+  HelpCircle, LogOut, Menu, Minimize2, Maximize2, MessageCircle,
+  Paperclip, Save, Share2, ShoppingBag, Smartphone,
+  Tag, Timer, Trash, Truck, Video, Volume1, VolumeX, Vote,
+  Wallet, Watch, Wifi, Wind, ZoomIn, ZoomOut, MapPin,
+  Crown, Medal, Globe, Lock, Unlock, Award as AwardIcon,
+  TrendingUp as TrendingUpIcon, Clock as ClockIcon,
+  XCircle, CheckCircle, AlertTriangle, Users as UsersIcon,
+  PlusCircle, MinusCircle, ArrowUp, ArrowDown, MoreVertical,
+  ChevronDown, ChevronUp, Copy, ExternalLink, Printer,
+  Settings as SettingsIcon, Sliders, BarChart as BarChartIcon,
+  PieChart as PieChartIcon, LineChart as LineChartIcon,
+  MailOpen, Inbox, Archive, Bookmark, ShoppingCart,
+  CreditCard, Receipt, Database, Cloud, Server, Monitor,
+  Tablet, Smartphone as SmartphoneIcon, Laptop, Cpu
+} from 'lucide-react';
+import {
+  AreaChart, Area, BarChart as ReBarChart, Bar,
+  PieChart as RePieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  ComposedChart
+} from 'recharts';
+
+// ==================== MOCK DATA ====================
+const salespeople = [
+  { id: 1, name: "Sarah Chen", initials: "SC", leads: 47, appts: 32, units: 18, gross: 124500, closeRate: 38.3, color: "bg-indigo-500", email: "sarah.chen@autodeal.com", phone: "(555) 111-2222", rank: 2, target: 20, achievement: 90 },
+  { id: 2, name: "Mike Rodriguez", initials: "MR", leads: 52, appts: 41, units: 24, gross: 187200, closeRate: 46.2, color: "bg-emerald-500", email: "mike.rodriguez@autodeal.com", phone: "(555) 222-3333", rank: 1, target: 25, achievement: 96 },
+  { id: 3, name: "Jessica Williams", initials: "JW", leads: 38, appts: 28, units: 15, gross: 98300, closeRate: 39.5, color: "bg-amber-500", email: "jessica.williams@autodeal.com", phone: "(555) 333-4444", rank: 4, target: 18, achievement: 83 },
+  { id: 4, name: "David Kim", initials: "DK", leads: 44, appts: 35, units: 21, gross: 156700, closeRate: 47.7, color: "bg-rose-500", email: "david.kim@autodeal.com", phone: "(555) 444-5555", rank: 3, target: 22, achievement: 95 },
+  { id: 5, name: "Lisa Thompson", initials: "LT", leads: 41, appts: 29, units: 17, gross: 112400, closeRate: 41.5, color: "bg-cyan-500", email: "lisa.thompson@autodeal.com", phone: "(555) 555-6666", rank: 5, target: 19, achievement: 89 },
+  { id: 6, name: "James Wilson", initials: "JW", leads: 35, appts: 22, units: 12, gross: 87600, closeRate: 34.3, color: "bg-purple-500", email: "james.wilson@autodeal.com", phone: "(555) 666-7777", rank: 6, target: 15, achievement: 80 },
+];
+
+const leadsData = [
+  { id: 1, score: 92, name: "Thomas Bennett", phone: "(555) 123-4567", email: "thomas.b@email.com", vehicle: "2024 Ford F-150 Lariat", source: "AutoTrader", status: "Hot", rep: "Sarah Chen", lastActivity: "5m ago", daysInStage: 1, websiteVisits: 5, emailsOpened: 3, tradeInSubmitted: true, budget: 65000, interest: "Truck", company: "Bennett Construction", title: "Owner", leadValue: 65000 },
+  { id: 2, score: 78, name: "Amanda Foster", phone: "(555) 234-5678", email: "amanda.f@email.com", vehicle: "2023 Tesla Model Y", source: "Website", status: "Warm", rep: "Mike Rodriguez", lastActivity: "2h ago", daysInStage: 3, websiteVisits: 3, emailsOpened: 2, tradeInSubmitted: false, budget: 55000, interest: "SUV", company: "Foster Law", title: "Attorney", leadValue: 55000 },
+  { id: 3, score: 45, name: "Marcus Webb", phone: "(555) 345-6789", email: "marcus.w@email.com", vehicle: "2022 BMW X5", source: "Cars.com", status: "Cold", rep: "Jessica Williams", lastActivity: "1d ago", daysInStage: 7, websiteVisits: 1, emailsOpened: 0, tradeInSubmitted: false, budget: 48000, interest: "Luxury SUV", company: "Webb Tech", title: "CTO", leadValue: 48000 },
+  { id: 4, score: 88, name: "Rachel Cohen", phone: "(555) 456-7890", email: "rachel.c@email.com", vehicle: "2024 Mercedes-Benz GLE", source: "Facebook", status: "Hot", rep: "David Kim", lastActivity: "15m ago", daysInStage: 2, websiteVisits: 4, emailsOpened: 4, tradeInSubmitted: true, budget: 75000, interest: "Luxury", company: "Cohen Realty", title: "Broker", leadValue: 75000 },
+  { id: 5, score: 65, name: "Kevin Zhang", phone: "(555) 567-8901", email: "kevin.z@email.com", vehicle: "2023 Toyota Tundra", source: "Phone", status: "Warm", rep: "Sarah Chen", lastActivity: "1h ago", daysInStage: 4, websiteVisits: 2, emailsOpened: 1, tradeInSubmitted: false, budget: 58000, interest: "Truck", company: "Zhang Logistics", title: "Fleet Manager", leadValue: 58000 },
+  { id: 6, score: 35, name: "Danielle Russo", phone: "(555) 678-9012", email: "danielle.r@email.com", vehicle: "2024 Honda CR-V", source: "Walk-in", status: "Cold", rep: "Lisa Thompson", lastActivity: "3d ago", daysInStage: 10, websiteVisits: 0, emailsOpened: 0, tradeInSubmitted: false, budget: 35000, interest: "SUV", company: "Russo Designs", title: "Designer", leadValue: 35000 },
+  { id: 7, score: 95, name: "Brandon Hayes", phone: "(555) 789-0123", email: "brandon.h@email.com", vehicle: "2024 Chevrolet Corvette", source: "AutoTrader", status: "Hot", rep: "Mike Rodriguez", lastActivity: "2m ago", daysInStage: 0, websiteVisits: 6, emailsOpened: 5, tradeInSubmitted: true, budget: 85000, interest: "Sports Car", company: "Hayes Capital", title: "Investor", leadValue: 85000 },
+  { id: 8, score: 72, name: "Olivia Martinez", phone: "(555) 890-1234", email: "olivia.m@email.com", vehicle: "2023 Lexus RX", source: "Website", status: "Warm", rep: "James Wilson", lastActivity: "3h ago", daysInStage: 3, websiteVisits: 3, emailsOpened: 2, tradeInSubmitted: false, budget: 52000, interest: "Luxury SUV", company: "Martinez Medical", title: "Doctor", leadValue: 52000 },
+];
+
+const inventoryData = [
+  { id: 1, year: 2024, make: "Ford", model: "F-150", trim: "Lariat", stock: "F24001", price: 58995, daysOnLot: 12, status: "Available", type: "New", engine: "3.5L EcoBoost V6", color: "Oxford White", views: 245, inquiries: 12 },
+  { id: 2, year: 2023, make: "Tesla", model: "Model Y", trim: "Long Range", stock: "T23002", price: 49990, daysOnLot: 28, status: "Available", type: "Used", engine: "Dual Motor", color: "Midnight Silver", views: 189, inquiries: 8 },
+  { id: 3, year: 2022, make: "BMW", model: "X5", trim: "xDrive40i", stock: "B22003", price: 55995, daysOnLot: 45, status: "Pending", type: "Used", engine: "3.0L I6 Turbo", color: "Mineral White", views: 156, inquiries: 5 },
+  { id: 4, year: 2024, make: "Mercedes", model: "GLE", trim: "450 4MATIC", stock: "M24004", price: 72995, daysOnLot: 8, status: "Available", type: "New", engine: "3.0L I6 Turbo", color: "Obsidian Black", views: 312, inquiries: 18 },
+  { id: 5, year: 2023, make: "Toyota", model: "Tundra", trim: "1794", stock: "T23005", price: 62995, daysOnLot: 62, status: "In Recon", type: "Used", engine: "3.5L V6 Hybrid", color: "Smoked Mesquite", views: 98, inquiries: 3 },
+  { id: 6, year: 2024, make: "Honda", model: "CR-V", trim: "Sport", stock: "H24006", price: 36995, daysOnLot: 5, status: "Available", type: "New", engine: "1.5L Turbo", color: "Radiant Red", views: 267, inquiries: 15 },
+];
+
+const serviceAppointments = [
+  { id: 1, time: "9:00 AM", customer: "Robert Johnson", vehicle: "Honda Accord", service: "Oil Change", status: "In Progress", advisor: "Tom Brady" },
+  { id: 2, time: "10:30 AM", customer: "Emily Davis", vehicle: "Toyota Camry", service: "Brakes", status: "Waiting", advisor: "Sarah Lee" },
+  { id: 3, time: "1:00 PM", customer: "Michael Brown", vehicle: "Ford Explorer", service: "Transmission", status: "Scheduled", advisor: "Tom Brady" },
+  { id: 4, time: "2:30 PM", customer: "Jessica Miller", vehicle: "Tesla Model 3", service: "Tires", status: "Scheduled", advisor: "Sarah Lee" },
+];
+
+const leadVolumeData = Array.from({ length: 30 }, (_, i) => ({ day: i + 1, leads: Math.floor(Math.random() * 25) + 8, conversions: Math.floor(Math.random() * 8) + 2 }));
+const leadSourcesData = [{ name: "Website", value: 38, color: "#4F46E5" }, { name: "AutoTrader", value: 24, color: "#10B981" }, { name: "Cars.com", value: 18, color: "#F59E0B" }, { name: "Facebook", value: 12, color: "#F43F5E" }, { name: "Phone", value: 5, color: "#8B5CF6" }, { name: "Walk-in", value: 3, color: "#06B6D4" }];
+const salespersonPerformance = salespeople.map(sp => ({ name: sp.name.split(' ')[0], units: sp.units, gross: sp.gross / 1000 }));
+const hotLeads = leadsData.filter(l => l.status === "Hot").slice(0, 5);
+const monthlyGoals = [{ month: "Jan", target: 15, actual: 14 }, { month: "Feb", target: 15, actual: 16 }, { month: "Mar", target: 18, actual: 17 }, { month: "Apr", target: 20, actual: 22 }, { month: "May", target: 22, actual: 21 }, { month: "Jun", target: 25, actual: 24 }];
+const notificationsData = [{ id: 1, type: "lead", message: "New lead from AutoTrader", time: "2 min ago", read: false }];
+
+// ==================== COMPONENTS ====================
+
+const StatusBadge = ({ status }) => {
+  const config = { Hot: "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400", Warm: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400", Cold: "bg-slate-100 text-slate-700", Available: "bg-emerald-100 text-emerald-700", Pending: "bg-indigo-100 text-indigo-700", "In Progress": "bg-indigo-100 text-indigo-700", Waiting: "bg-amber-100 text-amber-700", Scheduled: "bg-slate-100", Completed: "bg-emerald-100 text-emerald-700" };
+  return <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${config[status] || "bg-slate-100"}`}>{status}</span>;
+};
+
+const KpiCard = ({ title, value, change, icon: Icon, color }) => (
+  <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all group">
+    <div className="flex justify-between items-start">
+      <div><p className="text-sm text-slate-500">{title}</p><p className="text-2xl font-bold mt-1">{value}</p>{change && <div className={`flex items-center gap-1 mt-2 text-xs ${change.startsWith('+') ? 'text-emerald-600' : 'text-rose-600'}`}>{change.startsWith('+') ? <TrendingUp size={12} /> : <TrendingDown size={12} />}<span>{change}</span></div>}</div>
+      <div className={`p-3 rounded-lg ${color} group-hover:scale-110 transition-transform`}><Icon size={20} className="text-white" /></div>
+    </div>
+  </div>
+);
+
+const Toast = ({ message, type, onClose }) => {
+  useEffect(() => { const timer = setTimeout(onClose, 4000); return () => clearTimeout(timer); }, [onClose]);
+  const icons = { success: <Check size={16} />, error: <AlertCircle size={16} />, info: <Info size={16} /> };
+  const colors = { success: "bg-emerald-500", error: "bg-rose-500", info: "bg-indigo-500" };
+  return <div className={`fixed bottom-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg text-white ${colors[type]} animate-fade-in`}>{icons[type]}<span className="text-sm">{message}</span></div>;
+};
+
+const QuickAddFab = ({ onAction }) => {
+  const [open, setOpen] = useState(false);
+  const actions = [{ icon: <UserPlus size={16} />, label: "Add Lead", color: "bg-indigo-500", action: "lead" }, { icon: <PhoneCall size={16} />, label: "Log Call", color: "bg-emerald-500", action: "call" }, { icon: <Calendar size={16} />, label: "Set Appointment", color: "bg-amber-500", action: "appointment" }, { icon: <FileText size={16} />, label: "Add Note", color: "bg-purple-500", action: "note" }];
+  return (<div className="fixed bottom-6 right-6 z-40">{open && (<div className="absolute bottom-16 right-0 space-y-2 animate-fade-in">{actions.map((action, idx) => (<button key={idx} onClick={() => { onAction(action.action); setOpen(false); }} className={`flex items-center gap-2 px-4 py-2 ${action.color} text-white rounded-full shadow-lg hover:opacity-90 transition-all text-sm whitespace-nowrap`}>{action.icon}{action.label}</button>))}</div>)}<button onClick={() => setOpen(!open)} className={`w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all ${open ? 'bg-slate-600 rotate-45' : 'bg-indigo-500 hover:bg-indigo-600'} text-white`}><Plus size={24} /></button></div>);
+};
+
+const GlobalSearch = ({ onSelect }) => {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [showResults, setShowResults] = useState(false);
+  const searchRef = useRef(null);
+  useEffect(() => { const handleClickOutside = (e) => { if (searchRef.current && !searchRef.current.contains(e.target)) setShowResults(false); }; document.addEventListener('mousedown', handleClickOutside); return () => document.removeEventListener('mousedown', handleClickOutside); }, []);
+  useEffect(() => { if (query.length > 1) { const matchedLeads = leadsData.filter(l => l.name.toLowerCase().includes(query.toLowerCase())).slice(0, 5); const matchedVehicles = inventoryData.filter(v => `${v.make} ${v.model}`.toLowerCase().includes(query.toLowerCase())).slice(0, 5); setResults([...matchedLeads.map(l => ({ type: "lead", ...l })), ...matchedVehicles.map(v => ({ type: "vehicle", ...v }))]); setShowResults(true); } else { setResults([]); setShowResults(false); } }, [query]);
+  return (<div className="relative" ref={searchRef}><Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" /><input type="text" placeholder="Search customers, vehicles..." value={query} onChange={(e) => setQuery(e.target.value)} className="pl-9 pr-4 py-1.5 text-sm border rounded-lg bg-slate-50 dark:bg-slate-800 w-80 focus:outline-none focus:ring-2 focus:ring-indigo-500" />{showResults && results.length > 0 && (<div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-lg border z-50 max-h-96 overflow-y-auto">{results.map(result => (<button key={result.id} onClick={() => { onSelect(result); setQuery(""); setShowResults(false); }} className="w-full text-left px-4 py-2 hover:bg-slate-50 border-b last:border-0"><div className="flex items-center gap-3">{result.type === "lead" ? <Users size={14} className="text-indigo-500" /> : <Car size={14} className="text-emerald-500" />}<div><p className="text-sm font-medium">{result.type === "lead" ? result.name : `${result.make} ${result.model}`}</p><p className="text-xs text-slate-500">{result.type === "lead" ? result.vehicle : `Stock #${result.stock}`}</p></div></div></button>))}</div>)}</div>);
+};
+
+const LeadDrawer = ({ lead, onClose, onAction }) => {
+  if (!lead) return null;
+  return (<div className="fixed inset-y-0 right-0 w-full max-w-md bg-white dark:bg-slate-800 shadow-2xl z-50 transform transition-transform border-l" style={{ animation: 'slide-in 0.3s ease-out' }}><div className="flex flex-col h-full"><div className="flex justify-between items-center p-5 border-b"><h2 className="text-xl font-semibold">Lead Details</h2><button onClick={onClose} className="p-1 hover:bg-slate-100 rounded-lg"><X size={20} /></button></div><div className="flex-1 overflow-y-auto p-5 space-y-5"><div className="flex items-center gap-4"><div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xl font-bold">{lead.name.split(' ').map(n => n[0]).join('')}</div><div><h3 className="text-lg font-semibold">{lead.name}</h3><div className="flex items-center gap-2 mt-1"><StatusBadge status={lead.status} /><span className="text-sm text-slate-500">Score: {lead.score}/100</span></div><p className="text-xs text-slate-500 mt-1">{lead.title} at {lead.company}</p></div></div><div className="space-y-3"><h4 className="font-medium text-sm text-slate-500 uppercase">Contact Info</h4><div className="flex items-center gap-2 text-sm"><Phone size={16} className="text-slate-400" /><a href={`tel:${lead.phone}`} className="hover:text-indigo-600">{lead.phone}</a></div><div className="flex items-center gap-2 text-sm"><Mail size={16} className="text-slate-400" /><a href={`mailto:${lead.email}`} className="hover:text-indigo-600">{lead.email}</a></div></div><div className="space-y-3"><h4 className="font-medium text-sm text-slate-500 uppercase">Vehicle Interest</h4><div className="bg-slate-50 rounded-lg p-3"><p className="font-medium">{lead.vehicle}</p><p className="text-sm text-slate-500 mt-1">Budget: ${lead.budget.toLocaleString()}</p><p className="text-sm text-slate-500">Lead Value: ${lead.leadValue.toLocaleString()}</p></div></div><div className="space-y-3"><h4 className="font-medium text-sm text-slate-500 uppercase">AI Suggested Next Action</h4><div className="bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg p-3 text-white"><div className="flex items-center gap-2 mb-2"><Sparkles size={16} /><span className="font-medium">AI Assistant</span></div><p className="text-sm">Based on {lead.websiteVisits} site visits, this customer is ready for a quote.</p><button className="mt-3 px-4 py-2 bg-white/20 rounded-lg text-sm font-medium hover:bg-white/30">Send Quote</button></div></div><div className="space-y-3"><h4 className="font-medium text-sm text-slate-500 uppercase">Quick Actions</h4><div className="grid grid-cols-2 gap-2"><button onClick={() => onAction("Call", lead)} className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-100 rounded-lg text-sm"><Phone size={14} /> Call</button><button onClick={() => onAction("Text", lead)} className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-100 rounded-lg text-sm"><MessageSquare size={14} /> Text</button><button onClick={() => onAction("Email", lead)} className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-100 rounded-lg text-sm"><Mail size={14} /> Email</button><button onClick={() => onAction("Appointment", lead)} className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-100 rounded-lg text-sm"><Calendar size={14} /> Set Appt</button></div></div></div></div></div>);
+};
+
+const AiAssistant = ({ onClose, onSendMessage }) => {
+  const [messages, setMessages] = useState([{ role: "assistant", content: "Hello! I'm your AI sales assistant. Ask me about leads, inventory, or performance." }]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const handleSend = () => {
+    if (!input.trim()) return;
+    setMessages(prev => [...prev, { role: "user", content: input }]);
+    setInput("");
+    setLoading(true);
+    setTimeout(() => {
+      let response = "";
+      if (input.toLowerCase().includes("hot lead")) response = "Your hottest leads are Thomas Bennett (92) and Brandon Hayes (95). Both have multiple site visits.";
+      else if (input.toLowerCase().includes("close rate")) response = "Current close rate is 41.2%. David Kim leads with 47.7%.";
+      else response = "Based on your data, focus on the 5 hot leads. Your Facebook source has the best ROI at 1500%.";
+      setMessages(prev => [...prev, { role: "assistant", content: response }]);
+      setLoading(false);
+      onSendMessage(input);
+    }, 1000);
+  };
+  return (<div className="fixed inset-y-0 right-0 w-96 bg-white dark:bg-slate-800 shadow-2xl z-50 flex flex-col border-l"><div className="flex justify-between items-center p-4 border-b"><div className="flex items-center gap-2"><Bot size={20} className="text-indigo-500" /><h3 className="font-semibold">AI Assistant</h3></div><button onClick={onClose} className="p-1 hover:bg-slate-100 rounded"><X size={18} /></button></div><div className="flex-1 overflow-y-auto p-4 space-y-3">{messages.map((msg, idx) => (<div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[85%] p-3 rounded-xl ${msg.role === 'user' ? 'bg-indigo-500 text-white' : 'bg-slate-100'}`}><p className="text-sm">{msg.content}</p></div></div>))}{loading && (<div className="flex justify-start"><div className="bg-slate-100 p-3 rounded-xl"><Loader2 size={16} className="animate-spin" /></div></div>)}</div><div className="p-4 border-t"><div className="flex gap-2"><input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleSend()} placeholder="Ask me anything..." className="flex-1 px-3 py-2 border rounded-lg bg-slate-50 text-sm" /><button onClick={handleSend} className="p-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600"><Send size={16} /></button></div></div></div>);
+};
+
+const NotificationCenter = ({ notifications, onClose, onMarkRead }) => (<div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-slate-800 rounded-xl shadow-lg border z-50 overflow-hidden"><div className="flex justify-between items-center p-4 border-b"><h3 className="font-semibold">Notifications</h3><button onClick={onClose} className="p-1 hover:bg-slate-100 rounded"><X size={16} /></button></div><div className="max-h-96 overflow-y-auto">{notifications.map(notif => (<div key={notif.id} className={`p-4 hover:bg-slate-50 border-b cursor-pointer ${!notif.read ? 'bg-indigo-50' : ''}`} onClick={() => onMarkRead(notif.id)}><div className="flex items-start gap-3"><div className={`p-1.5 rounded-full ${notif.type === 'lead' ? 'bg-emerald-100' : notif.type === 'alert' ? 'bg-amber-100' : 'bg-indigo-100'}`}>{notif.type === 'lead' ? <UserPlus size={12} className="text-emerald-600" /> : notif.type === 'alert' ? <AlertCircle size={12} className="text-amber-600" /> : <Calendar size={12} className="text-indigo-600" />}</div><div className="flex-1"><p className="text-sm">{notif.message}</p><p className="text-xs text-slate-500 mt-1">{notif.time}</p></div>{!notif.read && <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>}</div></div>))}</div></div>);
+
+// ==================== PAGES ====================
+const Dashboard = ({ onToast, onSelectLead }) => (<div className="space-y-6"><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5"><KpiCard title="New Leads Today" value="23" change="+12%" icon={Users} color="bg-indigo-500" /><KpiCard title="Appointments" value="18" change="+5" icon={Calendar} color="bg-emerald-500" /><KpiCard title="Deals Closed" value="47" change="$324K" icon={Target} color="bg-amber-500" /><KpiCard title="Avg Response" value="4.2 min" change="-18%" icon={Clock} color="bg-rose-500" /></div><div className="grid grid-cols-1 lg:grid-cols-2 gap-6"><div className="bg-white dark:bg-slate-800 rounded-xl p-5 border"><h3 className="font-semibold mb-4">Lead Volume</h3><ResponsiveContainer width="100%" height={300}><AreaChart data={leadVolumeData}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="day" /><YAxis /><Tooltip /><Area type="monotone" dataKey="leads" stroke="#4F46E5" fill="#4F46E5" fillOpacity={0.1} /><Area type="monotone" dataKey="conversions" stroke="#10B981" fill="#10B981" fillOpacity={0.1} /></AreaChart></ResponsiveContainer></div><div className="bg-white dark:bg-slate-800 rounded-xl p-5 border"><h3 className="font-semibold mb-4">Lead Sources</h3><ResponsiveContainer width="100%" height={300}><RePieChart><Pie data={leadSourcesData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={5} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>{leadSourcesData.map((entry, idx) => <Cell key={idx} fill={entry.color} />)}</Pie><Tooltip /></RePieChart></ResponsiveContainer></div></div><div className="grid grid-cols-1 lg:grid-cols-2 gap-6"><div className="bg-white dark:bg-slate-800 rounded-xl p-5 border"><h3 className="font-semibold mb-4">Team Performance</h3><ResponsiveContainer width="100%" height={300}><ReBarChart data={salespersonPerformance}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="name" /><YAxis yAxisId="left" /><YAxis yAxisId="right" orientation="right" /><Tooltip /><Legend /><Bar yAxisId="left" dataKey="units" fill="#4F46E5" name="Units" /><Bar yAxisId="right" dataKey="gross" fill="#10B981" name="Gross ($K)" /></ReBarChart></ResponsiveContainer></div><div className="bg-white dark:bg-slate-800 rounded-xl p-5 border"><h3 className="font-semibold mb-4 flex items-center justify-between"><span>🔥 Hot Leads</span><span className="text-xs text-rose-500 animate-pulse">● Live</span></h3><div className="space-y-3 max-h-[300px] overflow-y-auto">{hotLeads.map(lead => (<div key={lead.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100" onClick={() => onSelectLead(lead)}><div><div className="flex items-center gap-2"><p className="font-medium text-sm">{lead.name}</p><StatusBadge status={lead.status} /></div><p className="text-xs text-slate-500">{lead.vehicle}</p><p className="text-xs text-slate-400">{lead.lastActivity}</p></div><div className="flex gap-2"><button onClick={(e) => { e.stopPropagation(); onToast(`Calling ${lead.name}...`, "info"); }} className="p-2 bg-emerald-100 rounded-lg"><Phone size={14} className="text-emerald-600" /></button><button onClick={(e) => { e.stopPropagation(); onToast(`Texting ${lead.name}...`, "info"); }} className="p-2 bg-indigo-100 rounded-lg"><MessageSquare size={14} className="text-indigo-600" /></button></div></div>))}</div></div></div></div>);
+
+const LeadsPage = ({ onToast, onSelectLead }) => {
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const filteredLeads = leadsData.filter(lead => { if (filterStatus !== "all" && lead.status !== filterStatus) return false; if (search && !lead.name.toLowerCase().includes(search.toLowerCase())) return false; return true; });
+  return (<div className="space-y-5"><div className="flex flex-wrap gap-3 items-center justify-between"><div className="flex gap-2"><select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border rounded-lg text-sm"><option value="all">All</option><option value="Hot">Hot</option><option value="Warm">Warm</option><option value="Cold">Cold</option></select><input type="text" placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} className="px-3 py-2 border rounded-lg text-sm w-64" /></div><button className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2"><Filter size={16} /> Filter</button></div><div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border overflow-hidden"><div className="overflow-x-auto"><table className="w-full"><thead className="bg-slate-50"><tr className="text-left text-xs font-medium text-slate-500 uppercase"><th className="px-4 py-3">Score</th><th className="px-4 py-3">Customer</th><th className="px-4 py-3">Contact</th><th className="px-4 py-3">Vehicle</th><th className="px-4 py-3">Source</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Rep</th><th className="px-4 py-3">Actions</th></tr></thead><tbody className="divide-y">{filteredLeads.map(lead => (<tr key={lead.id} className="hover:bg-slate-50 cursor-pointer" onClick={() => onSelectLead(lead)}><td className="px-4 py-3"><span className={`inline-flex px-2 py-0.5 rounded-full text-xs ${lead.score >= 80 ? 'bg-rose-100 text-rose-700' : lead.score >= 60 ? 'bg-amber-100 text-amber-700' : 'bg-slate-100'}`}>{lead.score}</span></td><td className="px-4 py-3 font-medium text-sm">{lead.name}</td><td className="px-4 py-3"><div className="flex gap-1"><a href={`tel:${lead.phone}`} onClick={(e) => e.stopPropagation()} className="p-1 hover:bg-slate-100 rounded"><Phone size={14} /></a><a href={`mailto:${lead.email}`} onClick={(e) => e.stopPropagation()} className="p-1 hover:bg-slate-100 rounded"><Mail size={14} /></a></div></td><td className="px-4 py-3 text-sm">{lead.vehicle.split(' ').slice(0,2).join(' ')}</td><td className="px-4 py-3 text-sm">{lead.source}</td><td className="px-4 py-3"><StatusBadge status={lead.status} /></td><td className="px-4 py-3 text-sm">{lead.rep.split(' ')[0]}</td><td className="px-4 py-3"><div className="flex gap-1"><button onClick={(e) => { e.stopPropagation(); onToast(`Calling ${lead.name}`, "info"); }} className="p-1.5 hover:bg-slate-100 rounded"><PhoneCall size={14} /></button><button onClick={(e) => { e.stopPropagation(); onToast(`Texting ${lead.name}`, "info"); }} className="p-1.5 hover:bg-slate-100 rounded"><MessageSquare size={14} /></button></div></td></tr>))}</tbody></table></div></div></div>);
+};
+
+const InventoryPage = ({ onToast }) => (<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">{inventoryData.map(vehicle => (<div key={vehicle.id} className="bg-white dark:bg-slate-800 rounded-xl border overflow-hidden hover:shadow-md cursor-pointer"><div className="h-32 bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-lg font-bold relative">{vehicle.make} {vehicle.model}<div className={`absolute top-2 right-2 w-2 h-2 rounded-full ${vehicle.status === "Available" ? "bg-emerald-400 animate-pulse" : "bg-slate-400"}`}></div></div><div className="p-4"><div className="flex justify-between items-start mb-2"><div><h3 className="font-semibold">{vehicle.year} {vehicle.make} {vehicle.model}</h3><p className="text-xs text-slate-500">Stock #{vehicle.stock}</p></div><StatusBadge status={vehicle.status} /></div><div className="flex justify-between items-center mb-3"><p className="text-xl font-bold text-indigo-600">${vehicle.price.toLocaleString()}</p><div className="flex gap-2 text-xs"><span className="px-2 py-1 bg-slate-100 rounded">👁️ {vehicle.views}</span><span className="px-2 py-1 bg-emerald-100 rounded">📞 {vehicle.inquiries}</span></div></div><div className="flex gap-2"><button onClick={() => onToast(`Matching leads for ${vehicle.model}`, "success")} className="flex-1 py-2 bg-indigo-50 text-indigo-600 rounded-lg text-sm">Match to Lead</button><button className="flex-1 py-2 bg-slate-100 rounded-lg text-sm">Details</button></div></div></div>))}</div>);
+
+const ServicePage = ({ onToast }) => {
+  const [appointments, setAppointments] = useState(serviceAppointments);
+  const updateStatus = (id, newStatus) => { setAppointments(appointments.map(apt => apt.id === id ? { ...apt, status: newStatus } : apt)); onToast(`Status updated to ${newStatus}`, "success"); };
+  return (<div className="space-y-5"><div className="grid grid-cols-4 gap-4"><div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center border"><p className="text-2xl font-bold">{appointments.length}</p><p className="text-sm">Total ROs</p></div><div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center border"><p className="text-2xl font-bold text-indigo-600">{appointments.filter(a => a.status === "In Progress").length}</p><p className="text-sm">In Progress</p></div><div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center border"><p className="text-2xl font-bold text-amber-600">{appointments.filter(a => a.status === "Waiting").length}</p><p className="text-sm">Waiting</p></div><div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center border"><p className="text-2xl font-bold text-emerald-600">{appointments.filter(a => a.status === "Completed").length}</p><p className="text-sm">Completed</p></div></div><div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border overflow-hidden"><div className="divide-y">{appointments.map(apt => (<div key={apt.id} className="flex items-center justify-between p-4 hover:bg-slate-50"><div className="flex items-center gap-4"><div className="w-20"><p className="font-bold text-indigo-600">{apt.time}</p></div><div><p className="font-medium">{apt.customer}</p><p className="text-sm text-slate-500">{apt.vehicle}</p></div></div><div className="flex-1 px-4"><p className="text-sm">{apt.service}</p><p className="text-xs text-slate-500">Advisor: {apt.advisor}</p></div><select value={apt.status} onChange={(e) => updateStatus(apt.id, e.target.value)} className="px-2 py-1 text-sm border rounded"><option>Scheduled</option><option>Waiting</option><option>In Progress</option><option>Completed</option></select></div>))}</div></div></div>);
+};
+
+const AnalyticsPage = ({ onToast }) => (<div className="space-y-6"><div className="bg-white dark:bg-slate-800 rounded-xl p-6 border"><div className="flex justify-between items-center mb-4"><h3 className="font-semibold">Sales Leaderboard</h3><button onClick={() => onToast("Report exported", "success")} className="flex items-center gap-2 text-indigo-600 text-sm"><Download size={14} /> Export</button></div><div className="space-y-3">{[...salespeople].sort((a,b) => b.units - a.units).map((rep, idx) => (<div key={rep.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"><div className="flex items-center gap-3"><div className={`w-10 h-10 rounded-full ${rep.color} flex items-center justify-center text-white text-xs font-bold`}>{rep.initials}</div><div><p className="font-medium text-sm">{rep.name}</p><p className="text-xs text-slate-500">{rep.units} units · ${(rep.gross/1000).toFixed(0)}K gross</p></div></div><div className="text-right"><p className="font-medium text-emerald-600">{rep.closeRate}%</p><p className="text-xs text-slate-500">close rate</p></div></div>))}</div></div><div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-6 text-white"><p className="text-sm font-medium mb-2">📊 Forecast</p><p className="text-lg">On pace for 87 units this month. Need 12 more to hit goal.</p><button className="mt-3 px-4 py-2 bg-white/20 rounded-lg text-sm font-medium hover:bg-white/30">View Recommendations</button></div></div>);
+
+const SettingsPage = ({ onToast }) => {
+  const [notifications, setNotifications] = useState(true);
+  return (<div className="space-y-6"><div className="bg-white dark:bg-slate-800 rounded-xl p-6 border"><h3 className="font-semibold mb-4">User Management</h3><div className="space-y-3">{salespeople.map(user => (<div key={user.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg"><div className="flex items-center gap-3"><div className={`w-10 h-10 rounded-full ${user.color} flex items-center justify-center text-white font-bold`}>{user.initials}</div><div><p className="font-medium">{user.name}</p><p className="text-xs text-slate-500">Sales Consultant</p></div></div><div className="flex gap-2"><button onClick={() => onToast(`Editing ${user.name}`, "info")} className="px-3 py-1 text-indigo-600 text-sm">Edit</button><button onClick={() => onToast(`Removing ${user.name}`, "error")} className="px-3 py-1 text-rose-600 text-sm">Remove</button></div></div>))}</div></div><div className="bg-white dark:bg-slate-800 rounded-xl p-6 border"><h3 className="font-semibold mb-4">Preferences</h3><div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg"><div><p className="font-medium">Email Notifications</p><p className="text-xs text-slate-500">Receive alerts for new leads</p></div><button onClick={() => { setNotifications(!notifications); onToast(`Notifications ${!notifications ? 'enabled' : 'disabled'}`, "success"); }} className={`px-4 py-2 rounded-lg text-sm ${notifications ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200'}`}>{notifications ? 'Enabled' : 'Disabled'}</button></div></div></div>);
+};
+
+// ==================== MAIN APP ====================
+const App = () => {
+  const [darkMode, setDarkMode] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [currentPage, setCurrentPage] = useState("dashboard");
+  const [selectedLead, setSelectedLead] = useState(null);
+  const [toasts, setToasts] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showAiAssistant, setShowAiAssistant] = useState(false);
+  const [notifications, setNotifications] = useState(notificationsData);
+  
+  useEffect(() => { if (darkMode) document.documentElement.classList.add('dark'); else document.documentElement.classList.remove('dark'); }, [darkMode]);
+  const addToast = (message, type = "success") => { const id = Date.now(); setToasts(prev => [...prev, { id, message, type }]); };
+  const removeToast = (id) => setToasts(prev => prev.filter(t => t.id !== id));
+  const markNotificationRead = (id) => { setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n)); };
+  
+  const navigation = [
+    { id: "reports", label: "Reports", icon: FileText, section: "ANALYTICS" },
+    { id: "team", label: "Team Perf", icon: Trophy, section: "ANALYTICS" },
+    { id: "insights", label: "Insights", icon: Heart, section: "SALES" },
+
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, section: "MAIN" },
+    { id: "leads", label: "Leads", icon: Users, section: "SALES" },
+    { id: "inventory", label: "Inventory", icon: Car, section: "SALES" },
+    { id: "service", label: "Service", icon: Wrench, section: "SERVICE" },
+    { id: "analytics", label: "Analytics", icon: BarChart3, section: "ANALYTICS" },
+    { id: "settings", label: "Settings", icon: Settings, section: "SETTINGS" },
+  ];
+  
+  const renderPage = () => {
+    switch (currentPage) {
+      case "dashboard": return <Dashboard onToast={addToast} onSelectLead={setSelectedLead} />;
+      case "leads": return <LeadsPage onToast={addToast} onSelectLead={setSelectedLead} />;
+      case "inventory": return <InventoryPage onToast={addToast} />;
+      case "service": return <ServicePage onToast={addToast} />;
+      case "analytics": return <AnalyticsPage onToast={addToast} />;
+      case "reports": return <ReportsCenterPage onToast={addToast} />;
+      case "team": return <TeamPerformancePage onToast={addToast} />;
+      case "insights": return <CustomerInsightsPage onToast={addToast} />;
+
+      case "settings": return <SettingsPage onToast={addToast} />;
+      default: return <Dashboard onToast={addToast} onSelectLead={setSelectedLead} />;
+    }
+  };
+  
+  return (<div className="flex h-screen bg-slate-50 dark:bg-slate-900"><aside className={`${sidebarCollapsed ? 'w-20' : 'w-64'} bg-white dark:bg-slate-800 border-r transition-all duration-300 flex flex-col`}><div className="p-5 border-b flex items-center justify-between">{!sidebarCollapsed && <div><span className="text-xl font-bold bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">AutoDeal CRM</span><p className="text-xs text-slate-500">Enterprise Suite</p></div>}<button onClick={() => setSidebarCollapsed(!sidebarCollapsed)} className="p-1.5 hover:bg-slate-100 rounded-lg"><ChevronLeft size={18} className={sidebarCollapsed ? "rotate-180" : ""} /></button></div><nav className="flex-1 p-3 space-y-6 overflow-y-auto">{["MAIN", "SALES", "SERVICE", "ANALYTICS", "SETTINGS"].map(section => { const sectionItems = navigation.filter(item => item.section === section); if (sectionItems.length === 0) return null; return (<div key={section}>{!sidebarCollapsed && <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 px-3">{section}</p>}<div className="space-y-1">{sectionItems.map(item => (<button key={item.id} onClick={() => setCurrentPage(item.id)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${currentPage === item.id ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-100'}`}><item.icon size={20} />{!sidebarCollapsed && <span className="text-sm font-medium">{item.label}</span>}</button>))}</div></div>); })}</nav></aside><div className="flex-1 flex flex-col overflow-hidden"><header className="bg-white dark:bg-slate-800 border-b px-6 py-3 flex items-center justify-between"><h1 className="text-lg font-semibold">{navigation.find(n => n.id === currentPage)?.label || "Dashboard"}</h1><div className="flex items-center gap-4"><GlobalSearch onSelect={(result) => { if (result.type === "lead") setSelectedLead(result); else addToast(`Selected vehicle`, "info"); }} /><button onClick={() => setDarkMode(!darkMode)} className="p-2 hover:bg-slate-100 rounded-lg">{darkMode ? <Sun size={18} /> : <Moon size={18} />}</button><div className="relative"><button onClick={() => { setShowNotifications(!showNotifications); setShowAiAssistant(false); }} className="p-2 hover:bg-slate-100 rounded-lg relative"><Bell size={18} /><span className="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full"></span></button>{showNotifications && <NotificationCenter notifications={notifications} onClose={() => setShowNotifications(false)} onMarkRead={markNotificationRead} />}</div><button onClick={() => { setShowAiAssistant(!showAiAssistant); setShowNotifications(false); }} className="p-2 hover:bg-slate-100 rounded-lg"><Bot size={18} /></button><div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold">AD</div></div></header><main className="flex-1 overflow-y-auto p-6">{renderPage()}</main></div>{selectedLead && <LeadDrawer lead={selectedLead} onClose={() => setSelectedLead(null)} onAction={(action, lead) => addToast(`${action} action for ${lead.name}`, "success")} />}{showAiAssistant && <AiAssistant onClose={() => setShowAiAssistant(false)} onSendMessage={() => {}} />}<QuickAddFab onAction={(action) => addToast(`${action} action triggered`, "success")} />{toasts.map(toast => <Toast key={toast.id} message={toast.message} type={toast.type} onClose={() => removeToast(toast.id)} />)}</div>);
+};
+
+export default App;
+
+// ==================== MEGA FEATURES ADDED ====================
+
+// NEW DATA STRUCTURES
+const chatMessages = [
+  { id: 1, sender: "Sarah Chen", message: "Hey team, anyone available to help with the F-150 lead?", time: "10:30 AM", avatar: "SC", unread: false },
+  { id: 2, sender: "Mike Rodriguez", message: "I can help! Just finished with a customer.", time: "10:32 AM", avatar: "MR", unread: false },
+  { id: 3, sender: "David Kim", message: "Great job on the Corvette sale Mike!", time: "10:35 AM", avatar: "DK", unread: false },
+  { id: 4, sender: "System", message: "New lead assigned to Jessica Williams", time: "10:40 AM", avatar: "SY", unread: true },
+];
+
+const documents = [
+  { id: 1, name: "Q4 Sales Report.pdf", type: "PDF", size: "2.4 MB", date: "2024-01-15", uploadedBy: "Sarah Chen" },
+  { id: 2, name: "Inventory List.xlsx", type: "Excel", size: "1.8 MB", date: "2024-01-14", uploadedBy: "Mike Rodriguez" },
+  { id: 3, name: "Customer Feedback.docx", type: "Word", size: "0.9 MB", date: "2024-01-13", uploadedBy: "David Kim" },
+  { id: 4, name: "Promotion Plan.pdf", type: "PDF", size: "3.1 MB", date: "2024-01-12", uploadedBy: "Lisa Thompson" },
+];
+
+const calendarEvents = [
+  { id: 1, title: "Team Meeting", date: "2024-01-20", time: "10:00 AM", type: "meeting", attendees: ["Sarah", "Mike", "David"] },
+  { id: 2, title: "Test Drive - Thomas Bennett", date: "2024-01-20", time: "2:00 PM", type: "appointment", attendees: ["Sarah"] },
+  { id: 3, title: "Sales Training", date: "2024-01-21", time: "9:00 AM", type: "training", attendees: ["All Staff"] },
+  { id: 4, title: "Follow-up Calls", date: "2024-01-21", time: "3:00 PM", type: "task", attendees: ["Mike", "David"] },
+];
+
+const kpiTargets = [
+  { metric: "Monthly Sales", current: 47, target: 60, progress: 78 },
+  { metric: "Customer Satisfaction", current: 4.8, target: 5.0, progress: 96 },
+  { metric: "Lead Conversion", current: 41, target: 50, progress: 82 },
+  { metric: "Response Time", current: 4.2, target: 3.0, progress: 71 },
+];
+
+const socialFeeds = [
+  { id: 1, user: "Sarah Chen", action: "closed a deal", target: "Ford F-150", amount: "$58,995", time: "1 hour ago", likes: 12, comments: 3 },
+  { id: 2, user: "Mike Rodriguez", action: "set appointment", target: "Tesla Model Y", time: "2 hours ago", likes: 8, comments: 1 },
+  { id: 3, user: "David Kim", action: "added new lead", target: "Rachel Cohen", time: "3 hours ago", likes: 5, comments: 0 },
+];
+
+const knowledgeBase = [
+  { id: 1, title: "How to handle trade-ins", category: "Sales", views: 234, helpful: 45 },
+  { id: 2, title: "Financing options guide", category: "Finance", views: 189, helpful: 38 },
+  { id: 3, title: "Vehicle inspection checklist", category: "Service", views: 156, helpful: 32 },
+  { id: 4, title: "Customer objection handling", category: "Sales", views: 278, helpful: 52 },
+];
+
+// ==================== NEW COMPONENTS ====================
+
+const ProgressBar = ({ progress, color = "bg-indigo-600" }) => (
+  <div className="w-full bg-slate-200 rounded-full h-2">
+    <div className={`${color} h-2 rounded-full transition-all duration-500`} style={{ width: `${progress}%` }}></div>
+  </div>
+);
+
+const TeamChat = ({ onToast }) => {
+  const [messages, setMessages] = useState(chatMessages);
+  const [newMessage, setNewMessage] = useState("");
+  
+  const sendMessage = () => {
+    if (!newMessage.trim()) return;
+    const msg = { id: messages.length + 1, sender: "You", message: newMessage, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), avatar: "You", unread: false };
+    setMessages([...messages, msg]);
+    setNewMessage("");
+    onToast("Message sent!", "success");
+  };
+  
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border h-[400px] flex flex-col">
+      <div className="p-3 border-b bg-slate-50 dark:bg-slate-700/50 rounded-t-xl">
+        <h3 className="font-semibold flex items-center gap-2"><MessageCircle size={16} /> Team Chat</h3>
+      </div>
+      <div className="flex-1 overflow-y-auto p-3 space-y-2">
+        {messages.map(msg => (
+          <div key={msg.id} className={`flex items-start gap-2 p-2 rounded-lg ${msg.sender === "You" ? 'bg-indigo-50 dark:bg-indigo-900/20' : 'hover:bg-slate-50'}`}>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">{msg.avatar === "You" ? "You" : msg.avatar}</div>
+            <div className="flex-1"><p className="text-sm font-medium">{msg.sender}</p><p className="text-xs text-slate-600 dark:text-slate-300">{msg.message}</p><p className="text-xs text-slate-400 mt-1">{msg.time}</p></div>
+            {msg.unread && <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>}
+          </div>
+        ))}
+      </div>
+      <div className="p-3 border-t flex gap-2">
+        <input type="text" value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && sendMessage()} placeholder="Type a message..." className="flex-1 px-3 py-2 text-sm border rounded-lg bg-slate-50 dark:bg-slate-900" />
+        <button onClick={sendMessage} className="p-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600"><Send size={16} /></button>
+      </div>
+    </div>
+  );
+};
+
+const DocumentLibrary = ({ onToast }) => {
+  const [docs, setDocs] = useState(documents);
+  
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border">
+      <div className="p-3 border-b bg-slate-50 dark:bg-slate-700/50 rounded-t-xl flex justify-between items-center">
+        <h3 className="font-semibold flex items-center gap-2"><FileText size={16} /> Document Library</h3>
+        <button onClick={() => onToast("Upload document", "info")} className="text-indigo-600 text-sm">+ Upload</button>
+      </div>
+      <div className="divide-y">
+        {docs.map(doc => (
+          <div key={doc.id} className="p-3 flex items-center justify-between hover:bg-slate-50 transition-colors">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-indigo-100 rounded-lg"><FileText size={16} className="text-indigo-600" /></div>
+              <div><p className="text-sm font-medium">{doc.name}</p><p className="text-xs text-slate-500">{doc.size} • {doc.date} • {doc.uploadedBy}</p></div>
+            </div>
+            <button onClick={() => onToast(`Downloading ${doc.name}`, "success")} className="p-1 hover:bg-slate-100 rounded"><Download size={14} /></button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const CalendarWidget = ({ onToast }) => {
+  const [events, setEvents] = useState(calendarEvents);
+  
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border">
+      <div className="p-3 border-b bg-slate-50 dark:bg-slate-700/50 rounded-t-xl flex justify-between items-center">
+        <h3 className="font-semibold flex items-center gap-2"><Calendar size={16} /> Upcoming Events</h3>
+        <button onClick={() => onToast("Add event", "info")} className="text-indigo-600 text-sm">+ Add</button>
+      </div>
+      <div className="divide-y">
+        {events.map(event => (
+          <div key={event.id} className="p-3 flex items-center gap-3 hover:bg-slate-50 transition-colors">
+            <div className={`p-2 rounded-lg ${event.type === 'meeting' ? 'bg-indigo-100' : event.type === 'appointment' ? 'bg-emerald-100' : 'bg-amber-100'}`}>
+              {event.type === 'meeting' && <Users size={14} className="text-indigo-600" />}
+              {event.type === 'appointment' && <Calendar size={14} className="text-emerald-600" />}
+              {event.type === 'training' && <Award size={14} className="text-amber-600" />}
+              {event.type === 'task' && <CheckCircle size={14} className="text-purple-600" />}
+            </div>
+            <div className="flex-1"><p className="text-sm font-medium">{event.title}</p><p className="text-xs text-slate-500">{event.date} at {event.time}</p></div>
+            <button onClick={() => onToast(`Viewing ${event.title}`, "info")} className="text-indigo-600 text-xs">Details</button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const KPITracker = ({ onToast }) => {
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border p-4">
+      <h3 className="font-semibold mb-3 flex items-center gap-2"><Target size={16} /> KPI Targets</h3>
+      <div className="space-y-3">
+        {kpiTargets.map(kpi => (
+          <div key={kpi.metric}>
+            <div className="flex justify-between text-sm mb-1"><span>{kpi.metric}</span><span>{kpi.current} / {kpi.target}</span></div>
+            <ProgressBar progress={kpi.progress} />
+            <p className="text-xs text-slate-500 mt-1">{kpi.progress}% to goal</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const SocialFeed = ({ onToast }) => {
+  const [feeds, setFeeds] = useState(socialFeeds);
+  
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border">
+      <div className="p-3 border-b bg-slate-50 dark:bg-slate-700/50 rounded-t-xl">
+        <h3 className="font-semibold flex items-center gap-2"><Activity size={16} /> Team Activity Feed</h3>
+      </div>
+      <div className="divide-y">
+        {feeds.map(feed => (
+          <div key={feed.id} className="p-3 hover:bg-slate-50 transition-colors">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">{feed.user.charAt(0)}</div>
+              <div className="flex-1"><p className="text-sm"><span className="font-medium">{feed.user}</span> {feed.action} {feed.target}{feed.amount && <span className="text-emerald-600"> for {feed.amount}</span>}</p><p className="text-xs text-slate-400 mt-1">{feed.time}</p></div>
+            </div>
+            <div className="flex gap-3 mt-2 pl-11">
+              <button className="text-xs text-slate-500 flex items-center gap-1"><Heart size={12} /> {feed.likes}</button>
+              <button className="text-xs text-slate-500 flex items-center gap-1"><MessageCircle size={12} /> {feed.comments}</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const KnowledgeBase = ({ onToast }) => {
+  const [articles, setArticles] = useState(knowledgeBase);
+  
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border">
+      <div className="p-3 border-b bg-slate-50 dark:bg-slate-700/50 rounded-t-xl flex justify-between items-center">
+        <h3 className="font-semibold flex items-center gap-2"><Bookmark size={16} /> Knowledge Base</h3>
+        <button onClick={() => onToast("Search knowledge base", "info")} className="text-indigo-600 text-sm">Search</button>
+      </div>
+      <div className="divide-y">
+        {articles.map(article => (
+          <div key={article.id} className="p-3 hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => onToast(`Opening: ${article.title}`, "info")}>
+            <p className="text-sm font-medium">{article.title}</p>
+            <div className="flex justify-between items-center mt-1"><span className="text-xs text-slate-500">{article.category}</span><div className="flex gap-2 text-xs text-slate-400"><span>👁️ {article.views}</span><span>👍 {article.helpful}</span></div></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const WeatherWidget = () => {
+  const [weather, setWeather] = useState({ temp: 72, condition: "Sunny", icon: "☀️" });
+  return (
+    <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-4 text-white">
+      <div className="flex justify-between items-center">
+        <div><p className="text-sm opacity-90">Today's Weather</p><p className="text-3xl font-bold">{weather.temp}°F</p><p className="text-sm">{weather.condition}</p></div>
+        <div className="text-5xl">{weather.icon}</div>
+      </div>
+      <p className="text-xs opacity-80 mt-2">Great day for test drives!</p>
+    </div>
+  );
+};
+
+const QuickStats = () => {
+  const stats = [
+    { label: "Active Users", value: "12", icon: Users, change: "+2" },
+    { label: "Page Views", value: "1,247", icon: Eye, change: "+18%" },
+    { label: "Avg Session", value: "4m 32s", icon: Clock, change: "+12%" },
+  ];
+  return (
+    <div className="grid grid-cols-3 gap-3">
+      {stats.map(stat => (
+        <div key={stat.label} className="bg-white dark:bg-slate-800 rounded-xl p-3 text-center border">
+          <stat.icon size={16} className="mx-auto text-indigo-500 mb-1" />
+          <p className="text-lg font-bold">{stat.value}</p>
+          <p className="text-xs text-slate-500">{stat.label}</p>
+          <p className="text-xs text-emerald-600">{stat.change}</p>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const BirthdayWidget = () => {
+  const birthdays = [
+    { name: "Sarah Chen", date: "Today", role: "Sales Rep" },
+    { name: "Mike Rodriguez", date: "Tomorrow", role: "Sales Rep" },
+  ];
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-3 border">
+      <h4 className="text-xs font-semibold text-slate-500 mb-2">🎂 Birthdays</h4>
+      {birthdays.map(b => (<div key={b.name} className="flex justify-between text-sm py-1"><span>{b.name}</span><span className="text-amber-600">{b.date}</span></div>))}
+    </div>
+  );
+};
+
+// ==================== NEW PAGE: REPORTS CENTER ====================
+const ReportsCenterPage = ({ onToast }) => {
+  const [reportType, setReportType] = useState("sales");
+  const reports = {
+    sales: { title: "Sales Report", data: salespeople, columns: ["Name", "Units", "Gross", "Close Rate"] },
+    inventory: { title: "Inventory Report", data: inventoryData, columns: ["Vehicle", "Price", "Days on Lot", "Status"] },
+    service: { title: "Service Report", data: serviceAppointments, columns: ["Customer", "Service", "Status", "Advisor"] },
+  };
+  
+  return (
+    <div className="space-y-5">
+      <div className="flex justify-between items-center"><h2 className="text-xl font-semibold">Reports Center</h2><button onClick={() => onToast("Report exported", "success")} className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2"><Download size={16} /> Export All</button></div>
+      <div className="flex gap-2 border-b pb-2">{["sales", "inventory", "service"].map(type => (<button key={type} onClick={() => setReportType(type)} className={`px-4 py-2 text-sm rounded-lg ${reportType === type ? 'bg-indigo-100 text-indigo-700' : 'hover:bg-slate-100'}`}>{type.charAt(0).toUpperCase() + type.slice(1)}</button>))}</div>
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border overflow-hidden">
+        <div className="p-4 bg-slate-50 border-b"><h3 className="font-semibold">{reports[reportType].title}</h3></div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-slate-50"><tr>{reports[reportType].columns.map(col => (<th key={col} className="px-4 py-3 text-left text-xs font-medium text-slate-500">{col}</th>))}</tr></thead>
+            <tbody className="divide-y">
+              {reportType === "sales" && reports.sales.data.map(rep => (<tr key={rep.id}><td className="px-4 py-3">{rep.name}</td><td className="px-4 py-3">{rep.units}</td><td className="px-4 py-3">${(rep.gross/1000).toFixed(0)}K</td><td className="px-4 py-3">{rep.closeRate}%</td></tr>))}
+              {reportType === "inventory" && reports.inventory.data.map(vehicle => (<tr key={vehicle.id}><td className="px-4 py-3">{vehicle.make} {vehicle.model}</td><td className="px-4 py-3">${vehicle.price.toLocaleString()}</td><td className="px-4 py-3">{vehicle.daysOnLot}</td><td className="px-4 py-3"><StatusBadge status={vehicle.status} /></td></tr>))}
+              {reportType === "service" && reports.service.data.map(apt => (<tr key={apt.id}><td className="px-4 py-3">{apt.customer}</td><td className="px-4 py-3">{apt.service}</td><td className="px-4 py-3"><StatusBadge status={apt.status} /></td><td className="px-4 py-3">{apt.advisor}</td></tr>))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ==================== NEW PAGE: TEAM PERFORMANCE ====================
+const TeamPerformancePage = ({ onToast }) => {
+  const [selectedRep, setSelectedRep] = useState("all");
+  const filteredReps = selectedRep === "all" ? salespeople : salespeople.filter(r => r.name === selectedRep);
+  const teamAvg = {
+    units: filteredReps.reduce((sum, r) => sum + r.units, 0) / filteredReps.length,
+    gross: filteredReps.reduce((sum, r) => sum + r.gross, 0) / filteredReps.length,
+    closeRate: filteredReps.reduce((sum, r) => sum + r.closeRate, 0) / filteredReps.length,
+  };
+  
+  return (
+    <div className="space-y-5">
+      <div className="flex justify-between items-center"><h2 className="text-xl font-semibold">Team Performance</h2><select value={selectedRep} onChange={(e) => setSelectedRep(e.target.value)} className="px-3 py-2 border rounded-lg text-sm"><option value="all">All Reps</option>{salespeople.map(r => <option key={r.id} value={r.name}>{r.name}</option>)}</select></div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4"><div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center border"><p className="text-2xl font-bold text-indigo-600">{teamAvg.units.toFixed(1)}</p><p className="text-sm text-slate-500">Avg Units/Rep</p></div><div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center border"><p className="text-2xl font-bold text-emerald-600">${(teamAvg.gross/1000).toFixed(0)}K</p><p className="text-sm text-slate-500">Avg Gross/Rep</p></div><div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center border"><p className="text-2xl font-bold text-amber-600">{teamAvg.closeRate.toFixed(1)}%</p><p className="text-sm text-slate-500">Avg Close Rate</p></div></div>
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border overflow-hidden">
+        <div className="overflow-x-auto"><table className="w-full"><thead className="bg-slate-50"><tr className="text-left text-xs font-medium text-slate-500 uppercase"><th className="px-4 py-3">Rank</th><th className="px-4 py-3">Rep</th><th className="px-4 py-3">Leads</th><th className="px-4 py-3">Appts</th><th className="px-4 py-3">Units</th><th className="px-4 py-3">Gross</th><th className="px-4 py-3">Close %</th><th className="px-4 py-3">Target</th><th className="px-4 py-3">Achievement</th></tr></thead><tbody className="divide-y">{filteredReps.map((rep, idx) => (<tr key={rep.id} className="hover:bg-slate-50"><td className="px-4 py-3"><div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xs">{idx+1}</div></td><td className="px-4 py-3 font-medium">{rep.name}</td><td className="px-4 py-3">{rep.leads}</td><td className="px-4 py-3">{rep.appts}</td><td className="px-4 py-3 font-bold">{rep.units}</td><td className="px-4 py-3 text-emerald-600">${(rep.gross/1000).toFixed(0)}K</td><td className="px-4 py-3">{rep.closeRate}%</td><td className="px-4 py-3">{rep.target}</td><td className="px-4 py-3"><div className="flex items-center gap-2"><div className="w-16 bg-slate-200 rounded-full h-2"><div className={`h-2 rounded-full ${rep.achievement >= 90 ? 'bg-emerald-500' : 'bg-amber-500'}`} style={{ width: `${rep.achievement}%` }}></div></div><span className="text-xs">{rep.achievement}%</span></div></td></tr>))}</tbody>}</table></div>
+      </div>
+    </div>
+  );
+};
+
+// ==================== NEW PAGE: CUSTOMER INSIGHTS ====================
+const CustomerInsightsPage = ({ onToast }) => {
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const topCustomers = leadsData.slice(0, 5);
+  
+  return (
+    <div className="space-y-5">
+      <h2 className="text-xl font-semibold">Customer Insights</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border"><h3 className="font-semibold mb-3">Top Customers by Value</h3><div className="space-y-3">{topCustomers.map(customer => (<div key={customer.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100" onClick={() => setSelectedCustomer(customer)}><div><p className="font-medium">{customer.name}</p><p className="text-xs text-slate-500">{customer.vehicle}</p></div><div className="text-right"><p className="font-bold text-indigo-600">${customer.budget.toLocaleString()}</p><p className="text-xs text-slate-500">{customer.source}</p></div></div>))}</div></div>
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border"><h3 className="font-semibold mb-3">Customer Satisfaction</h3><div className="text-center py-8"><div className="text-5xl font-bold text-indigo-600">4.8</div><div className="flex justify-center gap-1 my-3">{[...Array(5)].map((_, i) => (<Star key={i} size={24} className={i < 4.8 ? "text-yellow-400 fill-yellow-400" : "text-slate-300"} />))}</div><p className="text-sm text-slate-500">Based on 247 reviews</p><button className="mt-4 text-indigo-600 text-sm">View all reviews →</button></div></div>
+      </div>
+      {selectedCustomer && (<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setSelectedCustomer(null)}><div className="bg-white dark:bg-slate-800 rounded-xl max-w-md w-full mx-4 p-6" onClick={(e) => e.stopPropagation()}><div className="flex justify-between items-center mb-4"><h3 className="text-lg font-semibold">{selectedCustomer.name}</h3><button onClick={() => setSelectedCustomer(null)} className="p-1 hover:bg-slate-100 rounded"><X size={20} /></button></div><div className="space-y-3"><p><span className="text-slate-500">Vehicle:</span> {selectedCustomer.vehicle}</p><p><span className="text-slate-500">Budget:</span> ${selectedCustomer.budget.toLocaleString()}</p><p><span className="text-slate-500">Source:</span> {selectedCustomer.source}</p><p><span className="text-slate-500">Status:</span> <StatusBadge status={selectedCustomer.status} /></p><p><span className="text-slate-500">Rep:</span> {selectedCustomer.rep}</p></div><div className="flex gap-2 mt-4"><button className="flex-1 bg-indigo-600 text-white py-2 rounded-lg">Contact</button><button className="flex-1 bg-slate-100 py-2 rounded-lg">View Details</button></div></div></div>)}
+    </div>
+  );
+};
+
+// ==================== UPDATE THE APP WITH NEW PAGES ====================
+// Add these new pages to navigation and renderPage function
